@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet;
+package com.vitalog.spring_diet;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

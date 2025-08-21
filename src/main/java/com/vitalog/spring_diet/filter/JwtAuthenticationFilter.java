@@ -1,6 +1,6 @@
-package com.vitallog.spring_diet.filter;
+package com.vitalog.spring_diet.filter;
 
-import com.vitallog.spring_diet.util.JwtTokenProvider;
+import com.vitalog.spring_diet.util.JwtTokenProvider;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,6 +21,8 @@ public class JwtAuthenticationFilter implements Filter {
     private static final List<String> PUBLIC_PATHS = Arrays.asList(
             //인증이 필요없는 경로 목록을 String값으로 작성
             //예시: "/api/auth/login"
+            "/api/auth/login",
+            "/api/auth/register"
     );
 
     //토큰 추출 메소드
@@ -43,7 +45,7 @@ public class JwtAuthenticationFilter implements Filter {
 
         //2. 요청경로 추출
         String path = httpRequest.getServletPath();
-        System.out.println(path);
+        System.out.println("경로 = " + path);
 
         //3. PUBLIC_PATHS에 포함된 경로인지 확인
         boolean isPublicPath = PUBLIC_PATHS.stream().anyMatch(path::startsWith);
@@ -68,6 +70,7 @@ public class JwtAuthenticationFilter implements Filter {
 
             filterChain.doFilter(httpRequest,httpResponse);
         } else {
+            //토큰이 유효하지 않을때(401)
             httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             httpResponse.setContentType("application/json");
             httpResponse.setCharacterEncoding("UTF-8");

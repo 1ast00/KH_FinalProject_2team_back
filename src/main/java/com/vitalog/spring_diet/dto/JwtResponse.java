@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet.dto;
+package com.vitalog.spring_diet.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

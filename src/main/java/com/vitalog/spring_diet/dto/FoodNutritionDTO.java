@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet.dto;
+package com.vitalog.spring_diet.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +12,7 @@ import org.apache.ibatis.type.Alias;
 public class FoodNutritionDTO {
     
     //DTO의 field명과 Table의 column명이 다르므로 확인할 것
+    //대소문자 차이말하는 듯 받아오는 API명세서 참고하기
     
     //주키
     private int num;

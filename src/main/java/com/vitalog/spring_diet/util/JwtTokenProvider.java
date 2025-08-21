@@ -1,6 +1,6 @@
-package com.vitallog.spring_diet.util;
+package com.vitalog.spring_diet.util;
 
-import com.vitallog.spring_diet.dto.MemberDTO;
+import com.vitalog.spring_diet.dto.MemberDTO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -78,6 +78,7 @@ public class JwtTokenProvider {
         return false;
     }
 
+    //Refresh시간 가져오는 getter
     public long getRefreshTokenExpirationMs(){
         return refreshTokenExpirationMs;
     }

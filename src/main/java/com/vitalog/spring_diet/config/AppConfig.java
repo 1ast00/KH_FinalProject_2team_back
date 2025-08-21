@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet.config;
+package com.vitalog.spring_diet.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

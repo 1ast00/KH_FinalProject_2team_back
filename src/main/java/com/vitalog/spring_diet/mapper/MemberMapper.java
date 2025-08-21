@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet.mapper;
+package com.vitalog.spring_diet.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 

@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet.vo;
+package com.vitalog.spring_diet.vo;
 
 public class PagingVo {
 

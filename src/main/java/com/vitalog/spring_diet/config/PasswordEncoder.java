@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet.config;
+package com.vitalog.spring_diet.config;
 
 public interface PasswordEncoder {
     //유연성을 위해 rawPassword는 CharSequence로 받음

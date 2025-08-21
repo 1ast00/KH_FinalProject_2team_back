@@ -1,6 +1,6 @@
-package com.vitallog.spring_diet.service;
+package com.vitalog.spring_diet.service;
 
-import com.vitallog.spring_diet.mapper.MemberMapper;
+import com.vitalog.spring_diet.mapper.MemberMapper;
 import org.springframework.stereotype.Service;
 
 @Service

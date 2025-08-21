@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet.dto;
+package com.vitalog.spring_diet.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,7 +18,7 @@ public class MemberDTO {
     private int height;
     private double weight;
     private String gender;
-    private double goalweight;
+    private int goalweight;
     //ROLE_USER, ROLE_ADMIN
     private String role;
 }

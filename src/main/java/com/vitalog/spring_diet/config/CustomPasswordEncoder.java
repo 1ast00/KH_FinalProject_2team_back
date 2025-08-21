@@ -1,4 +1,4 @@
-package com.vitallog.spring_diet.config;
+package com.vitalog.spring_diet.config;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

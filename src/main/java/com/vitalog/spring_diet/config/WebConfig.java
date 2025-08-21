@@ -1,6 +1,6 @@
-package com.vitallog.spring_diet.config;
+package com.vitalog.spring_diet.config;
 
-import com.vitallog.spring_diet.filter.JwtAuthenticationFilter;
+import com.vitalog.spring_diet.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
