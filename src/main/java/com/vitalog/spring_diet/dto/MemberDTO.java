@@ -5,10 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.ibatis.type.Alias;
 
+@Alias("member")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Alias("member")
 public class MemberDTO {
     private int mno;
     private String userid;
