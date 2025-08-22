@@ -45,7 +45,7 @@ public class JwtAuthenticationFilter implements Filter {
 
         //2. 요청경로 추출
         String path = httpRequest.getServletPath();
-        System.out.println("경로 = " + path);
+        //System.out.println("경로 = " + path);
 
         //3. PUBLIC_PATHS에 포함된 경로인지 확인
         boolean isPublicPath = PUBLIC_PATHS.stream().anyMatch(path::startsWith);
@@ -62,10 +62,10 @@ public class JwtAuthenticationFilter implements Filter {
         //토큰 유효성 검사
         if(token != null && jwtTokenProvider.validateToken(token)){
             //토큰이 유효할시 httprequest 객체에 저장
-            String id = jwtTokenProvider.getUseridFromToken(token);
+            String mno = jwtTokenProvider.getUsermnoFromToken(token);
             String roles = jwtTokenProvider.getRolesFromToken(token);
 
-            httpRequest.setAttribute("authenticatedUserid",id);
+            httpRequest.setAttribute("authenticatedUsermno",mno);
             httpRequest.setAttribute("authenticatedRoles",roles);
 
             filterChain.doFilter(httpRequest,httpResponse);

@@ -8,4 +8,6 @@ public interface MemberMapper {
     MemberDTO findByMemberid(String userid);
 
     void registerMember(MemberDTO newMember);
+
+    MemberDTO findByid(int mno);
 }

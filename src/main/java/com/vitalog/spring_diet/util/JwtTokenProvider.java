@@ -32,7 +32,7 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + accessTokenExpirationMs);
 
-        return Jwts.builder().setSubject(String.valueOf((member.getUserid())))
+        return Jwts.builder().setSubject(String.valueOf((member.getMno())))
                 .claim("roles", member.getRole())
                 .setIssuedAt(now).setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS512).compact();
@@ -43,14 +43,14 @@ public class JwtTokenProvider {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + refreshTokenExpirationMs);
 
-        return Jwts.builder().setSubject(String.valueOf((member.getUserid())))
+        return Jwts.builder().setSubject(String.valueOf((member.getMno())))
                 .claim("roles", member.getRole())
                 .setIssuedAt(now).setExpiration(expiryDate)
                 .signWith(key, SignatureAlgorithm.HS512).compact();
     }
 
     //토큰 사용자 아이디 추출(subject)
-    public String getUseridFromToken(String token){
+    public String getUsermnoFromToken(String token){
         return Jwts.parser().setSigningKey(key).build().parseClaimsJws(token)
                 .getBody().getSubject();
     }

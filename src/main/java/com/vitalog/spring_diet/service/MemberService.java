@@ -19,4 +19,8 @@ public class MemberService {
     public void registerMember(MemberDTO newMember) {
         memberMapper.registerMember(newMember);
     }
+
+    public MemberDTO findByid(int mno) {
+        return memberMapper.findByid(mno);
+    }
 }

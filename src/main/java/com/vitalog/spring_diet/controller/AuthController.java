@@ -7,15 +7,15 @@ import com.vitalog.spring_diet.dto.MemberDTO;
 import com.vitalog.spring_diet.service.MemberService;
 import com.vitalog.spring_diet.util.JwtTokenProvider;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -80,6 +80,23 @@ public class AuthController {
         response.addCookie(refreshTokenCookie);
         return ResponseEntity.ok(new JwtResponse(accessToken, refreshToken, "Bearer"));
 
+    }
+
+    //사용자 정보 가져오기
+    @GetMapping("/user-data")
+    public ResponseEntity<String> getUserData(HttpServletRequest request){
+        String mno = (String) request.getAttribute("authenticatedUsermno");
+
+        MemberDTO user = memberService.findByid(Integer.parseInt(mno));
+
+        System.out.println("일련번호 확인: " + mno);
+        System.out.println("사용자: " + user);
+
+        if(user == null) {
+            Map<String, String> errorResponse = Map.of("message" , "사용자를 찾을 수 없습니다.","mno", mno);
+            return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity(user, HttpStatus.OK);
     }
 
 

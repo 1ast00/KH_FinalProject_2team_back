@@ -12,4 +12,8 @@
         insert into member (userid, password, mname, nickname, height, weight, gender, goal_weight, role)
         values(#{userid}, #{password}, #{mname}, #{nickname}, #{height}, #{weight}, #{gender}, #{goalweight}, #{role})
     </insert>
+    <select id="findByid" resultType="member">
+        select * from member
+        where mno = #{mno}
+    </select>
 </mapper>
