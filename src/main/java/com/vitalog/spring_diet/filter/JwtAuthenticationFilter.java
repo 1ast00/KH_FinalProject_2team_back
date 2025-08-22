@@ -68,6 +68,7 @@ public class JwtAuthenticationFilter implements Filter {
             httpRequest.setAttribute("authenticatedUsermno",mno);
             httpRequest.setAttribute("authenticatedRoles",roles);
 
+
             filterChain.doFilter(httpRequest,httpResponse);
         } else {
             //토큰이 유효하지 않을때(401)

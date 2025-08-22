@@ -32,7 +32,8 @@ public class WebConfig implements WebMvcConfigurer {
         // /**: 하위경로 전부 매칭
         
         registry.addMapping("/**")//모든 경로 CORS 허용
-                .allowedOrigins("https://localhost:3000")
+                //.allowedOrigins("https://localhost:3000")
+                .allowedOrigins("http://localhost:3000")
                 .allowedMethods("GET","POST","PUT","PATCH","DELETE","OPTIONS")
                 .allowedHeaders("*").allowCredentials(true).maxAge(3600);
     }

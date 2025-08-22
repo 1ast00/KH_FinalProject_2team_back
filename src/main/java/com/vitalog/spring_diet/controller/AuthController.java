@@ -46,6 +46,8 @@ public class AuthController {
         newMember.setGoalweight(request.getGoalweight());
         newMember.setRole("ROLE_USER");
 
+        System.out.println(newMember);
+
         memberService.registerMember(newMember);
 
         //msg 반환
@@ -69,9 +71,9 @@ public class AuthController {
 
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
 
-        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setHttpOnly(true); //자바스크립트에서 입력이 불가능하게
 
-//      refreshTokenCookie.setSecure(true); 배포하면 이거 활성화
+//      refreshTokenCookie.setSecure(true); 배포하면 이거 활성화 https
         refreshTokenCookie.setSecure(false);
         refreshTokenCookie.setPath("/");
         refreshTokenCookie.setMaxAge((int)(jwtTokenProvider
