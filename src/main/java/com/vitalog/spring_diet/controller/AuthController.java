@@ -99,5 +99,20 @@ public class AuthController {
         return new ResponseEntity(user, HttpStatus.OK);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletResponse response){
+        //null처리
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+
+        refreshTokenCookie.setHttpOnly(true);
+//      refreshTokenCookie.setSecure(true); 배포시
+        refreshTokenCookie.setSecure(false);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setMaxAge(0);
+
+        response.addCookie(refreshTokenCookie);
+        return ResponseEntity.ok("로그아웃");
+    }
+
 
 }
