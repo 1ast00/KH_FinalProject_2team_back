@@ -9,7 +9,7 @@ import org.springframework.web.client.RestTemplate; // 외부 API 통신에 사�
 import java.nio.charset.StandardCharsets; // 문자 인코딩 표준(UTF-8 등)을 정의 -> 이거 데이터 한글 깨짐
 
 @Configuration
-public class HealthApiConfig {
+public class ExerciseConfig {
 
     @Bean
     // RestTemplate 객체를 생성 -> Bean으로 제공하는 메서드

@@ -23,7 +23,7 @@ public class JwtAuthenticationFilter implements Filter {
             //예시: "/api/auth/login"
             "/api/auth/login",
             "/api/auth/register",
-            "/api/health/data" // 운동 데이터 API 경로
+            "/api/exercise/data" // 운동 데이터 API 경로
     );
 
     //토큰 추출 메소드

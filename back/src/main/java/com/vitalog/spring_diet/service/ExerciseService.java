@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference; // JSON 배열을 자바 �
 import com.fasterxml.jackson.databind.JsonNode; // JSON 데이터를 트리 구조로 다룰 때 사용
 import com.fasterxml.jackson.databind.ObjectMapper; // JSON과 자바 객체 변환의 핵심 클래스
 
-import com.vitalog.spring_diet.dto.HealthDTO; // HealthDTO 클래스 import
+import com.vitalog.spring_diet.dto.ExerciseDTO; // ExerciseDTO 클래스 import
 
 import lombok.RequiredArgsConstructor; // final 필드 생성자를 자동으로 만들어주는 Lombok 어노테이션
 import org.springframework.beans.factory.annotation.Value; // properties 파일 값을 변수로 가져오는 어노테이션
@@ -21,7 +21,7 @@ import java.util.List; // List import
 
 @Service
 @RequiredArgsConstructor
-public class HealthService {
+public class ExerciseService {
 
     // 의존성 주입으로 RestTemplate Bean을 받음
     private final RestTemplate restTemplate;
@@ -30,8 +30,8 @@ public class HealthService {
     @Value("${api.service-key}")
     private String serviceKey;
 
-    // 운동 데이터 가져오는 메서드
-    public List<HealthDTO> getHealthData() {
+    // ✨ 운동 데이터 가져오는 메서드
+    public List<ExerciseDTO> getExerciseData() {
 
         try {
             // 호출할 API URL 주소
@@ -58,8 +58,8 @@ public class HealthService {
             // JSON에서 'data' 부분만 추출
             JsonNode dataNode = root.path("data");
 
-            // 'data' 부분을 HealthDTO 리스트로 변환하여 반환
-            return mapper.readValue(dataNode.toString(), new TypeReference<List<HealthDTO>>() {});
+            // 'data' 부분을 ExerciseDTO 리스트로 변환하여 반환
+            return mapper.readValue(dataNode.toString(), new TypeReference<List<ExerciseDTO>>() {});
         } catch (Exception e) {
             e.printStackTrace();
             return null;
