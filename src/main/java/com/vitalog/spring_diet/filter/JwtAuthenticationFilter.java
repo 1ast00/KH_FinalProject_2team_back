@@ -23,6 +23,9 @@ public class JwtAuthenticationFilter implements Filter {
             //예시: "/api/auth/login"
             "/api/auth/login",
             "/api/auth/register",
+            "/api/auth/findID",
+            "/api/auth/findPW",
+            "/api/auth/resetPW"
             "/api/food/search"
     );
 
