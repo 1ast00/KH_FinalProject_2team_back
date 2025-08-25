@@ -16,4 +16,9 @@
         select * from member
         where mno = #{mno}
     </select>
+    <!-- NEW: 현재 체중 갱신 --> <!-- 0825 sss_log -->
+    <update id="updateWeight">
+        update member set weight = #{weight}
+        where mno = #{mno}
+    </update>
 </mapper>
