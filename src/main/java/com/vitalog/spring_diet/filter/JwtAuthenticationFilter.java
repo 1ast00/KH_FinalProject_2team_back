@@ -22,7 +22,8 @@ public class JwtAuthenticationFilter implements Filter {
             //인증이 필요없는 경로 목록을 String값으로 작성
             //예시: "/api/auth/login"
             "/api/auth/login",
-            "/api/auth/register"
+            "/api/auth/register",
+            "/api/food/search"
     );
 
     //토큰 추출 메소드
