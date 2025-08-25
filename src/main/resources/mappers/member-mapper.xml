@@ -28,4 +28,6 @@
         update member set password = #{password}
         where userid = #{userid}
     </update>
+    <!-- 현재 체중 갱신  -->
+    <update id="updateWeight"> update member set weight = #{weight} where mno = #{mno} </update>
 </mapper>

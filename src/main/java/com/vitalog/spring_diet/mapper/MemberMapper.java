@@ -18,4 +18,7 @@ public interface MemberMapper {
     MemberDTO findPW(Map<String, String> map);
 
     int updatePW(Map<String, String> map);
+
+    //현재 체중 갱신 //0825 sss_log
+    int updateWeight(Map<String, Object> p);
 }
