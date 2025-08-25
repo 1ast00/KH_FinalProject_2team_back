@@ -29,7 +29,7 @@ public class FoodService {
 
     private final String SERVICE_KEY = "Nkv11vVle%2BYo80xqKkGzpDuFqx821kQQiFWy5EMcBEwcG%2BbVh8%2FxJPMJS5R3NaoDGmYwXqXDmC%2FqW%2Blrzl7HLg%3D%3D";
     private int pageNo = 1;
-    private int numOfRows = 5;
+    private final int NUM_OF_ROWS = 5;
     //returnType: xml/json
     private String returnType = "json";
     private String prdlstNm;
@@ -43,13 +43,15 @@ public class FoodService {
     //DB에 저장된 데이터를 불러오는 메소드
 
     //API를 불러와서 요청한 정보를 가공하는 method
-    public List<FoodNutritionDTO> foodApiSearch(String searchTxt) {
+    public List<FoodNutritionDTO> foodApiSearch(String searchTxt, int page) {
+
+        pageNo = page;
 
         //pageNo
         String apiURL = "https://apis.data.go.kr/B553748/CertImgListServiceV3/getCertImgListServiceV3";
         apiURL += "?ServiceKey=" + SERVICE_KEY;
         apiURL += "&pageNo=" + pageNo;
-        apiURL += "&numOfRows=" + numOfRows;
+        apiURL += "&numOfRows=" + NUM_OF_ROWS;
         apiURL += "&returnType=" + returnType;
 
         //1. SearchTxt를 UTF-8형태로 encoding 후 URL에 추가
@@ -111,6 +113,9 @@ public class FoodService {
 
         System.out.println("String json: "+json);
 
+        //빈 리스트를 유사시 반환하기 위해 초기화와 함께 선언
+        List<FoodNutritionDTO> resultList = new ArrayList<>();
+
         try {
             ObjectMapper mapper = new ObjectMapper();
 
@@ -119,13 +124,14 @@ public class FoodService {
 
             Map<String,Object> body = (Map<String, Object>) map.get("body");
             System.out.println("body: "+body);
+            //body가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌: null safe
+            if(body == null) return resultList;
 
             List<Map<String,Object>> foodList = (List<Map<String,Object>>) body.get("items");
-            //foodList가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌
-
             System.out.println("foodList: "+foodList);
+            //foodList가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌: null safe
+            if(foodList == null) return resultList;
 
-            List<FoodNutritionDTO> resultList = new ArrayList<>();
             for (Map<String,Object> items : foodList) {
                 Map<String,Object> item = (Map<String, Object>) items.get("item");
                 if(item == null) continue;
@@ -135,7 +141,10 @@ public class FoodService {
                 //주키
                 foodDTO.setPrdlstReportNo((String) item.get("prdlstReportNo"));
 
-                foodDTO.setRnum(Integer.parseInt((String) item.get("rnum")));
+                //rnum이 비어있을 시 대비: null safe
+                String rnumStr = (String) item.get("rnum");
+                foodDTO.setRnum(rnumStr != null ? Integer.parseInt(rnumStr) : 0);
+
                 foodDTO.setProductGb((String) item.get("productGb"));
                 foodDTO.setPrdlstNm((String) item.get("prdlstNm"));
                 foodDTO.setRawmtrl((String) item.get("rawmtrl"));

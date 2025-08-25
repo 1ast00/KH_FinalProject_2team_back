@@ -3,6 +3,7 @@ package com.vitalog.spring_diet.controller;
 import com.vitalog.spring_diet.dto.FoodNutritionDTO;
 import com.vitalog.spring_diet.dto.FoodNutritionResponseDTO;
 import com.vitalog.spring_diet.service.FoodService;
+import com.vitalog.spring_diet.vo.PagingVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,11 +27,11 @@ public class FoodController {
     //return type
     // 1. Map: 만들기 쉬움
     // 2. ResponseEntity: 범용성 높음. 오랜기간 장기 유지보수에 유리
-    public ResponseEntity<FoodNutritionResponseDTO<List<FoodNutritionDTO>>> getFoodApiResult(@RequestParam String searchTxt){
+    public ResponseEntity<FoodNutritionResponseDTO<List<FoodNutritionDTO>>> getFoodApiResult(@RequestParam String searchTxt,
+                                                                                            @RequestParam(defaultValue = "1") int page ){
 
-        Map<String,Object> map = new HashMap<>();
-
-        System.out.println(searchTxt);
+        System.out.println("searchTxt: "+searchTxt);
+        System.out.println("page: "+page);
 
         //데이터를 Api와 DB에서 받는 메소드
         //DB의 데이터가 api의 데이터에 대해 항상 우선순위를 가짐
@@ -38,9 +39,16 @@ public class FoodController {
         //1. 우선 DB에 데이터가 있는지 확인(미구현)
         //2. DB의 데이터를 출력(미구현)
 
-        //3. 없으면 api 호출
-        List<FoodNutritionDTO> result = foodService.foodApiSearch(searchTxt);
+        //3-1. 없으면 api 호출
+        List<FoodNutritionDTO> result = foodService.foodApiSearch(searchTxt,page);
         System.out.println("result in getFoodApiResult: "+ result);
+
+        //3-2. paging 정보 넣기
+        int count = result.size();
+        System.out.println("Size of result api data array: "+ count);
+        int pageOfContentCount = 5;
+
+        PagingVo paging = new PagingVo(count, page, pageOfContentCount);
 
         // 4. 호출한 데이터를 앞단으로 보냄
         FoodNutritionResponseDTO<List<FoodNutritionDTO>> responseDTO;
@@ -50,6 +58,7 @@ public class FoodController {
             return new ResponseEntity<>(responseDTO, HttpStatus.NO_CONTENT);
         } else {
             responseDTO = new FoodNutritionResponseDTO<>(200,"검색결과 존재",result);
+            Map<String,Object> response = new HashMap<>();
             return ResponseEntity.ok(responseDTO);
         }
     }
