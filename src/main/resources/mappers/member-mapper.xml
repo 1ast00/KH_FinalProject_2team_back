@@ -16,4 +16,18 @@
         select * from member
         where mno = #{mno}
     </select>
+    <select id="findID" resultType="member" parameterType="map">
+        select userid from member
+        where mname = #{mname} and nickname = #{nickname}
+    </select>
+    <select id="findPW" resultType="member">
+        select * from member
+        where userid = #{userid} and mname = #{mname}
+    </select>
+    <update id="updatePW">
+        update member set password = #{password}
+        where userid = #{userid}
+    </update>
+    <!-- 현재 체중 갱신  -->
+    <update id="updateWeight"> update member set weight = #{weight} where mno = #{mno} </update>
 </mapper>

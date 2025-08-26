@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -45,8 +46,6 @@ public class AuthController {
         newMember.setGender(request.getGender());
         newMember.setGoalweight(request.getGoalweight());
         newMember.setRole("ROLE_USER");
-
-        System.out.println(newMember);
 
         memberService.registerMember(newMember);
 
@@ -116,5 +115,47 @@ public class AuthController {
         return ResponseEntity.ok("로그아웃");
     }
 
+    @PostMapping("/findID")
+    public ResponseEntity<Object> findID(@Valid @RequestBody MemberDTO member){
+        String mname = member.getMname();
+        String nickname = member.getNickname();
 
+        MemberDTO findID = memberService.findID(mname, nickname);
+
+        if(findID != null){
+            Map<String, String> map = Map.of("userid", findID.getUserid());
+            return ResponseEntity.ok(map);
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
+
+    @PostMapping("/findPW")
+    public ResponseEntity<Object> findPW(@Valid @RequestBody MemberDTO member){
+        String userid = member.getUserid();
+        String mname = member.getMname();
+
+        MemberDTO findPW = memberService.findPW(userid, mname);
+
+        if(findPW != null) {
+            Map<String, String> map = new HashMap<>();
+            map.put("userid", findPW.getUserid());
+            map.put("mname", findPW.getMname());
+
+            return ResponseEntity.ok(map);
+
+        }else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("사용자를 찾을 수 없습니다.");
+        }
+    }
+
+    @PostMapping("/resetPW")
+    public ResponseEntity<Object> resetPW(@Valid @RequestBody AuthRequest request){
+        String userid = request.getUserid();
+        String password = passwordEncoder.encode(request.getPassword());
+
+        memberService.updatePW(userid, password);
+
+        return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
+    }
 }
