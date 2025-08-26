@@ -33,7 +33,6 @@ public class MemberService {
         map.put("nickname", nickname);
 
         return memberMapper.findID(map);
-
     }
 
     public MemberDTO findPW(String userid, String mname) {
@@ -53,5 +52,10 @@ public class MemberService {
 
     public int updateUser(String mname, String nickname, int goalweight, String userid) {
         return memberMapper.updateUser(mname, nickname, goalweight, userid);
+
+    //현재 체중 갱신
+    public void updateWeight(int mno, double weight) {
+        memberMapper.updateWeight(Map.of("mno", mno, "weight", weight));
+
     }
 }

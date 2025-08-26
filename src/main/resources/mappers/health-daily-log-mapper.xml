@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitalog.spring_diet.mapper.HealthDailyLogMapper">
+
+    <!-- 목록: member.weight 조인으로 현재 체중 내려줌 -->
+    <select id="selectMyLogs" resultType="hlog">
+        SELECT
+        h.HNO                          AS hno,
+        h.MNO                          AS mno,
+        TO_CHAR(h.HDATE,'YYYY.MM.DD')  AS hdateStr,
+        TO_CHAR(h.SLEEPTIME,'HH24:MI') AS sleeptimeStr,
+        m.WEIGHT                       AS weight,      -- 회원 현재 체중
+        h.WATERAMOUNT                  AS wateramount,
+        h.EXERCISE                     AS exercise,
+        h.FOOD                         AS food
+        FROM Health_Daily_Log h
+        JOIN member m ON m.mno = h.mno
+        WHERE h.MNO = #{mno}
+        <if test="date != null and date != ''">
+            AND TRUNC(h.HDATE) = TO_DATE(#{date}, 'YYYY-MM-DD')
+        </if>
+        <if test="cursor != null and cursor &gt; 0">
+            AND h.HNO &lt; #{cursor}
+        </if>
+        ORDER BY h.HDATE DESC, h.HNO DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
+    <select id="selectNextHno" resultType="int">
+        SELECT SEQ_HEALTH_DAILY_LOG_HNO.NEXTVAL FROM DUAL
+    </select>
+
+    <!-- INSERT: SLEEPTIME 절대 NULL 금지(없으면 00:00), 다른 컬럼도 NULL 방지 -->
+    <insert id="insertHealthDailyLog" parameterType="hlog">
+        INSERT INTO Health_Daily_Log (
+        HNO, MNO, HDATE, SLEEPTIME, WATERAMOUNT, EXERCISE, FOOD
+        ) VALUES (
+        #{hno},
+        #{mno},
+        CASE WHEN #{hdate} IS NOT NULL AND #{hdate} != ''
+        THEN TO_DATE(#{hdate}, 'YYYY-MM-DD')
+        ELSE SYSDATE
+        END,
+        CASE WHEN #{sleeptime} IS NOT NULL AND #{sleeptime} != ''
+        THEN TO_DATE(#{sleeptime}, 'HH24:MI')
+        ELSE TO_DATE('00:00','HH24:MI')
+        END,
+        NVL(#{wateramount}, 0),
+        NVL(#{exercise}, '-'),
+        NVL(#{food}, '-')
+        )
+    </insert>
+
+    <!-- UPDATE: 값이 안 넘어오면 기존값 유지(== NOT NULL 보장) -->
+    <update id="updateHealthDailyLog" parameterType="hlog">
+        UPDATE Health_Daily_Log
+        SET
+        HDATE = CASE WHEN #{hdate} IS NOT NULL AND #{hdate} != ''
+        THEN TO_DATE(#{hdate}, 'YYYY-MM-DD')
+        ELSE HDATE
+        END,
+        SLEEPTIME = CASE WHEN #{sleeptime} IS NOT NULL AND #{sleeptime} != ''
+        THEN TO_DATE(#{sleeptime}, 'HH24:MI')
+        ELSE SLEEPTIME
+        END,
+        WATERAMOUNT = NVL(#{wateramount}, WATERAMOUNT),
+        EXERCISE    = NVL(#{exercise}, EXERCISE),
+        FOOD        = NVL(#{food}, FOOD)
+        WHERE HNO = #{hno} AND MNO = #{mno}
+    </update>
+
+    <delete id="deleteHealthDailyLog">
+        DELETE FROM Health_Daily_Log
+        WHERE HNO = #{hno} AND MNO = #{mno}
+    </delete>
+
+    <!-- 가장 최근 일지(HDATE DESC, HNO DESC) -->
+    <select id="selectLatestHno" resultType="int">
+        SELECT hno
+        FROM Health_Daily_Log
+        WHERE mno = #{mno}
+        ORDER BY HDATE DESC, HNO DESC
+        FETCH FIRST 1 ROWS ONLY
+    </select>
+
+</mapper>

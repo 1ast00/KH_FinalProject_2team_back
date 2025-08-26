@@ -44,4 +44,6 @@
         update member set mname = #{mname}, nickname = #{nickname}, goal_weight = #{goalweight}
         where userid = #{userid}
     </update>
+    <!-- 현재 체중 갱신  -->
+    <update id="updateWeight"> update member set weight = #{weight} where mno = #{mno} </update>
 </mapper>
