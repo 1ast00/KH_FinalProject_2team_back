@@ -158,4 +158,16 @@ public class AuthController {
 
         return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
     }
+
+    @PostMapping("/updateUser")
+    public ResponseEntity<Object> updateUser(@Valid @RequestBody MemberDTO member){
+        String mname = member.getMname();
+        String nickname = member.getNickname();
+        int goalweight = member.getGoalweight();
+        String userid = member.getUserid();
+
+        memberService.updateUser(mname, nickname, goalweight, userid);
+
+        return ResponseEntity.ok().body("사용자 정보가 성공적으로 변경되었습니다.");
+    }
 }

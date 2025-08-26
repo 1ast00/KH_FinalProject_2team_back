@@ -50,4 +50,8 @@ public class MemberService {
         map.put("password", password);
         return memberMapper.updatePW(map);
     }
+
+    public int updateUser(String mname, String nickname, int goalweight, String userid) {
+        return memberMapper.updateUser(mname, nickname, goalweight, userid);
+    }
 }
