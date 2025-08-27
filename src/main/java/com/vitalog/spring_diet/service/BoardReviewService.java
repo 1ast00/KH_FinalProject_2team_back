@@ -1,22 +1,31 @@
 package com.vitalog.spring_diet.service;
 
+import com.vitalog.spring_diet.dto.BRCommentDTO;
+import com.vitalog.spring_diet.dto.BRFileDTO;
+import com.vitalog.spring_diet.dto.BoardReviewDTO;
 import com.vitalog.spring_diet.mapper.BoardReviewMapper;
+import com.vitalog.spring_diet.vo.PagingVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class BoardReviewService {
 
     private final BoardReviewMapper boardReviewMapper;
-/* dec+25.08.27 안돌아가는데... 올리는 중.
+// dec+25.08.27 안돌아가는데 올리고 돌아가게 하려고 애쓰는 중.
 
     //전체 게시글 목록 조회 -페이징 포함
     public Map<String, Object> getReviewList(int pageNo, int pageContentEa) {
         int totalCount = boardReviewMapper.selectReviewTotalCount();
         PagingVo pagingVo = new PagingVo(totalCount, pageNo, pageContentEa);
 
-        // PagingVo 객체를 Mapper에 직접 전달 (수정된 부분)
+    // PagingVo 객체를 Mapper에 직접 전달 (수정된 부분)
         List<BoardReviewDTO> list = boardReviewMapper.selectReviewList(pagingVo);
 
         Map<String, Object> resultMap = new HashMap<>();
@@ -27,7 +36,7 @@ public class BoardReviewService {
     }
 
     //내가 쓴 글 목록 조회 -페이징 포함
-    public Map<String, Object> getMyReviewList(long mno, int pageNo, int pageContentEa) {
+    public Map<String, Object> getMyReviewList(int mno, int pageNo, int pageContentEa) {
         int totalCount = boardReviewMapper.selectMyReviewTotalCount(mno);
         PagingVo pagingVo = new PagingVo(totalCount, pageNo, pageContentEa);
         pagingVo.setMno(mno); // PagingVo에 사용자 번호 설정
@@ -85,7 +94,7 @@ public class BoardReviewService {
         }
     }
 
-/*     //게시글 작성 (파일 포함) - dec_25.08.27 test 안됨.
+     //게시글 작성 (파일 포함) - dec_25.08.27 test 안됨.
     @Transactional
     public int writeReview(BoardReviewDTO review, List<BRFileDTO> fileList) {
         int result = boardReviewMapper.insertReview(review);
@@ -118,20 +127,20 @@ public class BoardReviewService {
     public int getReviewAwesomeCount(int brno) {
         return boardReviewMapper.selectReviewAwesomeCount(brno);
     }
- //   public BRCommentDTO getComment(int cno) {
- //       return boardReviewMapper.selectComment(cno);
- //   }  //25.08.27 수정중
+   public BRCommentDTO getComment(int brcno) {
+       return boardReviewMapper.selectComment(brcno);
+   }
     public void deleteComment(int cno) {
         boardReviewMapper.deleteComment(cno);
     }
-//    public List<BRCommentDTO> getCommentList(int brno) {
-//        return boardReviewMapper.selectCommentList(brno);
-//    }  //25.08.27 수정중
+   public List<BRCommentDTO> getCommentList(int brno) {
+        return boardReviewMapper.selectCommentList(brno);
+    }
     public int insertComment(BRCommentDTO comment) {
         return boardReviewMapper.insertComment(comment);
     }
     public int updateComment(BRCommentDTO comment) {
         return boardReviewMapper.updateComment(comment);
     }
-    */ //병합해야된다는디 오류나서 죄다 주석처리
+
 }

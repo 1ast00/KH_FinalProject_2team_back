@@ -5,7 +5,7 @@ public class PagingVo {
     private int count;
     private int currentPage;
     private int pageOfContentCount;
-    private long mno; //add_25.08.27
+    private int mno; //add_25.08.27
     private final int PAGE_GROUP_OF_COUNT = 4;
 
     public PagingVo(int count, int currentPage, int pageOfContentCount){
@@ -27,10 +27,10 @@ public class PagingVo {
     }
 
     //add_25.08.27
-    public long getMno() {
+    public int getMno() {
         return mno;
     }
-    public void setMno(long mno) {
+    public void setMno(int mno) {
         this.mno = mno;
     }
 

@@ -4,16 +4,17 @@ import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 import java.sql.Clob;
-import java.util.Date;
+import java.sql.Date;
 
 @Data
 @Alias("boardReview")
 public class BoardReviewDTO {
-    private Number brno;
+    private int brno;
+    private int mno;
     private String brtitle;
     private Clob brcontent;
     private Date brwrite_date;
     private Date brwrite_update;
-    private Number brhitcount;
-    private Number brdanger;
+    private int brhitcount;
+    private int brdanger;
 }
