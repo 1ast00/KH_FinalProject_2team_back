@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter implements Filter {
             filterChain.doFilter(servletRequest,servletResponse);
             return;
         }
-        
+
         //5. 인증(유효한 토큰)이 있어야 통과
         //http header에서 토큰 추출
         String token = resolveToken(httpRequest);

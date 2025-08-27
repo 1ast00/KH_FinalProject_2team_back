@@ -1,4 +1,4 @@
-//날짜 중복(code 3), 입력검증(code 4)
+// 날짜 중복(code 3), 입력검증(code 4)
 package com.vitalog.spring_diet.controller;
 
 import com.vitalog.spring_diet.dto.HealthDailyLogDTO;
@@ -40,7 +40,7 @@ public class HealthDailyLogController {
             @Valid @RequestBody HealthDailyLogRequest req
     ) {
         int mno = Integer.parseInt(authenticatedUsermno);
-
+      
         // [검증] 몸무게 필수
         if (req.getWeight() == null) {
             return ResponseEntity.ok(Map.of("code", 4, "msg", "몸무게를 입력해 주세요."));

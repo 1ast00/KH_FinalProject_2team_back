@@ -10,10 +10,9 @@ import org.apache.ibatis.type.Alias;
 @AllArgsConstructor
 @Alias("food")
 public class FoodNutritionDTO {
-    
+
     //DTO의 field명과 Table의 column명이 다르므로 확인할 것
     //대소문자 차이말하는 듯 받아오는 API명세서 참고하기
-
     //수정 바람
     //주키: 품목 보고번호
     private String prdlstReportNo;
@@ -28,5 +27,4 @@ public class FoodNutritionDTO {
     private String manufacture;
     private String imgurl1;
     private String imgurl2;
-
 }

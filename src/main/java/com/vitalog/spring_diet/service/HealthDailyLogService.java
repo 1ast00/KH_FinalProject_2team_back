@@ -10,7 +10,6 @@ import java.util.Map;
 
 @Service
 public class HealthDailyLogService {
-
     private final HealthDailyLogMapper mapper;
     // 타입 명시 간소화 (동일 클래스)
     private final MemberService memberService;
@@ -58,7 +57,6 @@ public class HealthDailyLogService {
         }
         return count;
     }
-
 
     public int update(HealthDailyLogDTO dto) {
         int count = mapper.updateHealthDailyLog(dto);

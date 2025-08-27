@@ -19,6 +19,8 @@ public interface MemberMapper {
 
     int updatePW(Map<String, String> map);
 
-    //현재 체중 갱신 //0825 sss_log
+    int updateUser(String mname, String nickname, int goalweight, String userid);
+
+    // 현재 체중 갱신
     int updateWeight(Map<String, Object> p);
 }
