@@ -11,8 +11,4 @@ public interface TodoListMapper {
     List<TodoListDTO> selectTodoList(Map<String, Object> map);
 
     int insertTodo(TodoListDTO todo);
-
-    int selectByTno(int mno);
-
-    int updateTodoCheck(List<TodoListDTO> todos);
 }

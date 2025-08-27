@@ -4,28 +4,10 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.TodoListMapper">
     <select id="selectTodoList" resultType="todo">
-        select * from todolist where mno = #{mno} and tdate = #{date}
+        select * from todoList where mno = #{mno} and tdate = #{date}
     </select>
 
     <insert id="insertTodo">
         insert into todolist (mno, tdate, tcontent) values (#{mno}, #{tdate}, #{tcontent})
     </insert>
-
-    <select id="selectByTno">
-        select Max(tno) from todolist where mno = #{mno}
-    </select>
-
-    <update id="updateTodoCheck">
-        UPDATE todolist
-        SET tcheck = CASE
-        <foreach collection="list" item="todos">
-            WHEN tno = #{todos.tno} THEN #{todos.tcheck}
-        </foreach>
-        ELSE tcheck
-        END
-        WHERE tno IN
-        <foreach collection="list" item="todos" open="(" close=")" separator=",">
-            #{todos.tno}
-        </foreach>
-    </update>
 </mapper>
