@@ -10,7 +10,9 @@ import java.util.Map;
 
 @Service
 public class HealthDailyLogService {
+
     private final HealthDailyLogMapper mapper;
+    // 타입 명시 간소화 (동일 클래스)
     private final MemberService memberService;
 
     public HealthDailyLogService(HealthDailyLogMapper mapper, MemberService memberService) {
@@ -27,20 +29,36 @@ public class HealthDailyLogService {
         return mapper.selectMyLogs(p);
     }
 
-    public int nextHno() { return mapper.selectNextHno(); }
+    public int nextHno() {
+        return mapper.selectNextHno();
+    }
 
+    //  날짜 중복 체크: Map 호출 -> 파라미터 호출로 변경
+    public boolean existsDate(int mno, String hdate) {
+        if (hdate == null || hdate.isBlank()) return false;
+        return mapper.countByDate(mno, hdate) > 0;
+    }
+    //
+
+    //  create 전에 날짜 중복 방지 체크 추가
     public int create(HealthDailyLogDTO dto) {
+        // 같은 날짜 이미 있으면 막기
+        if (existsDate(dto.getMno(), dto.getHdate())) {
+            return 0; // 컨트롤러에서 code/msg 처리
+        }
+
         int count = mapper.insertHealthDailyLog(dto);
 
         // 가장 최근 일지라면 member.weight 갱신
         if (count > 0 && dto.getWeight() != null) {
             Integer latestHno = mapper.selectLatestHno(dto.getMno());
-            if (latestHno != null && latestHno == dto.getHno()) {
+            if (latestHno != null && latestHno.equals(dto.getHno())) {
                 memberService.updateWeight(dto.getMno(), dto.getWeight());
             }
         }
         return count;
     }
+
 
     public int update(HealthDailyLogDTO dto) {
         int count = mapper.updateHealthDailyLog(dto);
@@ -48,7 +66,7 @@ public class HealthDailyLogService {
         // 가장 최근 일지라면 member.weight 갱신
         if (count > 0 && dto.getWeight() != null) {
             Integer latestHno = mapper.selectLatestHno(dto.getMno());
-            if (latestHno != null && latestHno == dto.getHno()) {
+            if (latestHno != null && latestHno.equals(dto.getHno())) {
                 memberService.updateWeight(dto.getMno(), dto.getWeight());
             }
         }
