@@ -23,4 +23,12 @@ public class TodoListService {
     public int insertTodo(TodoListDTO todo) {
         return mapper.insertTodo(todo);
     }
+
+    public int selectByTno(int mno) {
+        return mapper.selectByTno(mno);
+    }
+
+    public int updateTodoCheck(List<TodoListDTO> todos) {
+        return mapper.updateTodoCheck(todos);
+    }
 }
