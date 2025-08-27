@@ -26,7 +26,7 @@ public class ExerciseService {
     @Value("${api.service-key}")
     private String serviceKey;
 
-    // ✨ 운동 데이터 가져오는 메서드
+    // 운동 데이터 가져오는 메서드
     public List<ExerciseDTO> getExerciseData() {
 
         try {
