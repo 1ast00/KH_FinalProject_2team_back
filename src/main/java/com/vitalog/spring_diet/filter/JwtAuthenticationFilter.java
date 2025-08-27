@@ -22,7 +22,12 @@ public class JwtAuthenticationFilter implements Filter {
             //인증이 필요없는 경로 목록을 String값으로 작성
             //예시: "/api/auth/login"
             "/api/auth/login",
-            "/api/auth/register"
+            "/api/auth/register",
+            "/api/auth/findID",
+            "/api/auth/findPW",
+            "/api/auth/resetPW",
+            "/api/food/search",
+            "/api/exercise/data"
     );
 
     //토큰 추출 메소드
@@ -55,7 +60,7 @@ public class JwtAuthenticationFilter implements Filter {
             filterChain.doFilter(servletRequest,servletResponse);
             return;
         }
-        
+
         //5. 인증(유효한 토큰)이 있어야 통과
         //http header에서 토큰 추출
         String token = resolveToken(httpRequest);
