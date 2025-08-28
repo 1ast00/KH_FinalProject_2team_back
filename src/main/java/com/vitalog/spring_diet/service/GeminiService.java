@@ -18,10 +18,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GeminiService {
 
-    // ExerciseConfig에 이미 Bean으로 등록된 RestTemplate을 주입받습니다.
+    // ExerciseConfig에 이미 Bean으로 등록된 RestTemplate을 주입받기
     private final RestTemplate restTemplate;
 
-    // application.properties에서 API 키를 주입받습니다.
+    // application.properties에서 API 키를 주입받기
     @Value("${gemini.api.key}")
     private String apiKey;
 
