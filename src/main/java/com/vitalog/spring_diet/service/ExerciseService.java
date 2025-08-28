@@ -23,7 +23,7 @@ public class ExerciseService {
     private final RestTemplate restTemplate;
 
     // properties 파일에서 api.service-key 값 주입(운동 정보 API 인증키)
-    @Value("${api.service-key}")
+    @Value("${exercise.api.service-key}")
     private String serviceKey;
 
     // 운동 데이터 가져오는 메서드
