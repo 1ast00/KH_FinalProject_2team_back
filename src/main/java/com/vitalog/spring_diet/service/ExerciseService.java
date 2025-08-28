@@ -22,7 +22,7 @@ public class ExerciseService {
     // 의존성 주입으로 RestTemplate Bean을 받음
     private final RestTemplate restTemplate;
 
-    // properties 파일에서 api.service-key 값 주입(운동 정보 API 인증키)
+    // properties 파일에서 exercise.api.service-key 값 주입(운동 정보 API 인증키)
     @Value("${exercise.api.service-key}")
     private String serviceKey;
 
