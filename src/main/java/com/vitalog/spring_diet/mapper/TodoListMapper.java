@@ -13,7 +13,7 @@ public interface TodoListMapper {
     int insertTodo(TodoListDTO todo);
 
     int selectByTno(int mno);
-
+  
     int updateTodoCheck(int mno, List<TodoListDTO> todos);
 
     int deleteTodo(int tno, int mno);

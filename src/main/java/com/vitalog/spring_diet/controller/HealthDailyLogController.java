@@ -1,3 +1,4 @@
+// 날짜 중복(code 3), 입력검증(code 4)
 package com.vitalog.spring_diet.controller;
 
 import com.vitalog.spring_diet.dto.HealthDailyLogDTO;
@@ -29,7 +30,7 @@ public class HealthDailyLogController {
 
         Map<String, Object> result = new HashMap<>();
         result.put("items", items);
-        result.put("nextCursor", nextCursor); // HashMap은 null OK
+        result.put("nextCursor", nextCursor);
         return result;
     }
 
@@ -39,6 +40,16 @@ public class HealthDailyLogController {
             @Valid @RequestBody HealthDailyLogRequest req
     ) {
         int mno = Integer.parseInt(authenticatedUsermno);
+      
+        // [검증] 몸무게 필수
+        if (req.getWeight() == null) {
+            return ResponseEntity.ok(Map.of("code", 4, "msg", "몸무게를 입력해 주세요."));
+        }
+        // [중복] 같은 날짜 이미 있음
+        if (req.getHdate() != null && service.existsDate(mno, req.getHdate())) {
+            return ResponseEntity.ok(Map.of("code", 3, "msg", "같은 날짜의 건강일지가 이미 있습니다."));
+        }
+
         var dto = toDTO(req);
         dto.setHno(service.nextHno());
         dto.setMno(mno);
@@ -53,6 +64,7 @@ public class HealthDailyLogController {
             @Valid @RequestBody HealthDailyLogRequest req
     ) {
         int mno = Integer.parseInt(authenticatedUsermno);
+
         var dto = toDTO(req);
         dto.setHno(hno);
         dto.setMno(mno);
@@ -72,9 +84,9 @@ public class HealthDailyLogController {
     public static class HealthDailyLogRequest {
         private String hdate;        // YYYY-MM-DD
         private String sleeptime;    // HH:MM
-        private Double weight;       // ← 일지 저장 X, member.weight 갱신용
+        private Double weight;       // 최신글이면 member.weight 갱신
         private Double wateramount;
-        private String exercise;
+        private String exercise;     // (폼에서 배열 → '\n'로 합쳐서 들어옴)
         private List<String> foods;  // 개행 join
     }
 

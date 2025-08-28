@@ -31,7 +31,7 @@ public class AuthController {
     public ResponseEntity<String> register(@Valid @RequestBody AuthRequest request){
         //아이디 중복 체크
         if(memberService.findByMemberid(request.getUserid()) != null){
-           return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 아이디가 이미 존재합니다.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 아이디가 이미 존재합니다.");
         }
 
         //새로운 회원값 전송
@@ -157,5 +157,17 @@ public class AuthController {
         memberService.updatePW(userid, password);
 
         return ResponseEntity.ok(Map.of("message", "비밀번호가 성공적으로 변경되었습니다."));
+    }
+
+    @PostMapping("/updateUser")
+    public ResponseEntity<Object> updateUser(@Valid @RequestBody MemberDTO member){
+        String mname = member.getMname();
+        String nickname = member.getNickname();
+        int goalweight = member.getGoalweight();
+        String userid = member.getUserid();
+
+        memberService.updateUser(mname, nickname, goalweight, userid);
+
+        return ResponseEntity.ok().body("사용자 정보가 성공적으로 변경되었습니다.");
     }
 }
