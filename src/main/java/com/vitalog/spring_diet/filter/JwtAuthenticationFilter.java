@@ -27,7 +27,9 @@ public class JwtAuthenticationFilter implements Filter {
             "/api/auth/findPW",
             "/api/auth/resetPW",
             "/api/food/search",
-            "/api/exercise/data"
+            "/api/exercise/data",
+            "/api/reviews"
+
     );
 
     //토큰 추출 메소드
@@ -60,7 +62,7 @@ public class JwtAuthenticationFilter implements Filter {
             filterChain.doFilter(servletRequest,servletResponse);
             return;
         }
-        
+
         //5. 인증(유효한 토큰)이 있어야 통과
         //http header에서 토큰 추출
         String token = resolveToken(httpRequest);

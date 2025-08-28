@@ -31,7 +31,7 @@ public class AuthController {
     public ResponseEntity<String> register(@Valid @RequestBody AuthRequest request){
         //아이디 중복 체크
         if(memberService.findByMemberid(request.getUserid()) != null){
-           return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 아이디가 이미 존재합니다.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("사용자 아이디가 이미 존재합니다.");
         }
 
         //새로운 회원값 전송
