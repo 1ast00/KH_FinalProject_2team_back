@@ -12,3 +12,4 @@ public class FoodNutritionResponseDTO<T> {
     private String message; //메세지
     private T data; //모든 종류의 데이터를 범용적으로 받을 수 있음
 }
+
