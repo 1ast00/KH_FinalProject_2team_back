@@ -127,6 +127,9 @@ public class FoodService {
 
             Map<String,Object> body = (Map<String, Object>) map.get("body");
             System.out.println("body: "+body);
+            Integer totalCount = Integer.parseInt((String) body.get("totalCount"));
+            System.out.println("totalCount: "+totalCount);
+
             //body가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌: null safe
             if(body == null) return resultList;
 
@@ -175,6 +178,8 @@ public class FoodService {
 
                 String imgurl2 = (String) item.get("imgurl2");
                 foodDTO.setImgurl2(imgurl2 != null? imgurl2: "정보없음");
+                
+                foodDTO.setTotalCount(totalCount != null? totalCount: 0);
 
                 resultList.add(foodDTO);
             }
