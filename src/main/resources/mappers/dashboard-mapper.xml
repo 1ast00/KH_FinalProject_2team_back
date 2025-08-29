@@ -18,7 +18,7 @@
         AND weight IS NOT NULL AND weight > 0
     </select>
 
-    <!-- 목표 달성 수: 현재체중 ≤ 목표체중 -->
+    <!-- 목표 달성 수: 현재체중 , 목표체중 -->
     <select id="countGoalAchieved" resultType="int">
         SELECT COUNT(*)
         FROM member
@@ -31,11 +31,22 @@
     <select id="selectGenderRatio"
             resultType="com.vitalog.spring_diet.dto.admindashboard.GenderRatioDTO">
         SELECT
-        SUM(CASE WHEN UPPER(gender) = 'M' THEN 1 ELSE 0 END) AS M,
-        SUM(CASE WHEN UPPER(gender) = 'F' THEN 1 ELSE 0 END) AS F,
-        SUM(CASE WHEN gender IS NULL OR UPPER(gender) NOT IN ('M','F') THEN 1 ELSE 0 END) AS ETC
+        SUM(CASE
+        WHEN TRIM(UPPER(gender)) IN ('M','MALE') OR TRIM(gender) IN ('남','남자') THEN 1
+        ELSE 0
+        END) AS M,
+        SUM(CASE
+        WHEN TRIM(UPPER(gender)) IN ('F','FEMALE') OR TRIM(gender) IN ('여','여자') THEN 1
+        ELSE 0
+        END) AS F,
+        SUM(CASE
+        WHEN gender IS NULL OR
+        (TRIM(UPPER(gender)) NOT IN ('M','F','MALE','FEMALE') AND TRIM(gender) NOT IN ('남','남자','여','여자'))
+        THEN 1 ELSE 0
+        END) AS ETC
         FROM member
     </select>
+
 
     <!-- 선택: 역할 분포 -->
     <select id="selectRoleDistribution"
