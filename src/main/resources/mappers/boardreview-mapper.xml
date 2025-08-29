@@ -5,7 +5,6 @@
 
 <mapper namespace="com.vitalog.spring_diet.mapper.BoardReviewMapper">
     <resultMap id="BoardReviewMap" type="boardReview">
-
         <id property="brno" column="BRNO"/>
         <result property="mno" column="MNO"/>
         <result property="brtitle" column="BRTITLE"/>
@@ -34,6 +33,34 @@
         )
         WHERE rnum &gt;= #{start}
     </select>
+<!--    <resultMap id="BoardReviewMap" type="boardReview">-->
+<!--        <id property="brno" column="brno"/>-->
+<!--        <result property="brtitle" column="brtitle"/>-->
+<!--        <result property="brcontent" column="brcontent"/>-->
+<!--        <result property="brwrite_date" column="brwrite_date"/>-->
+<!--        <result property="brwrite_update" column="brwrite_update"/>-->
+<!--        <result property="brhitcount" column="brhitcount"/>-->
+<!--        <result property="brdanger" column="brdanger"/>-->
+<!--    </resultMap>-->
+
+<!--    <select id="selectReviewList" parameterType="PagingVo" resultMap="BoardReviewMap">-->
+<!--        SELECT *-->
+<!--        FROM (-->
+<!--        SELECT ROWNUM AS rnum, b.*-->
+<!--        FROM (-->
+<!--        SELECT brno, brtitle, brwrite_date, brhitcount, brdanger-->
+<!--        FROM board_review-->
+<!--        <where>-->
+<!--            <if test="mno != null and mno > 0">-->
+<!--                mno = #{mno}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        ORDER BY brno DESC-->
+<!--        ) b-->
+<!--        WHERE ROWNUM &lt;= #{end}-->
+<!--        )-->
+<!--        WHERE rnum &gt;= #{start}-->
+<!--    </select>-->
 
 <!--    <select id="selectReviewTotalCount" resultType="int">-->
 <!--        SELECT COUNT(*) FROM board_review-->
@@ -143,5 +170,4 @@
 <!--    </select>-->
 <!--    <select id="selectComment" parameterType="int" resultType="BRComment">SELECT * FROM br_comment WHERE cno = #{cno}-->
 <!--    </select>-->
-
 </mapper>

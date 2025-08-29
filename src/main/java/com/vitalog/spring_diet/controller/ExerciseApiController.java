@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000") // http://localhost:3000 요청 허용
 @RequestMapping("/api/exercise") // 이 컨트롤러의 요청은 /api/exercise로 시작
 @RequiredArgsConstructor
 public class ExerciseApiController {

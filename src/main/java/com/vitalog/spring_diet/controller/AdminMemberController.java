@@ -21,7 +21,7 @@ public class AdminMemberController {
             @RequestParam(name = "size",  defaultValue = "10") int size,
             @RequestParam(name = "q",     required = false)    String q,
             @RequestParam(name = "role",  defaultValue = "ALL") String role,
-            @RequestParam(name = "status", defaultValue = "ALL") String status,
+            @RequestParam(name = "status", defaultValue = "ALL") String status, // 미사용
             @RequestParam(name = "sort",  defaultValue = "mno,asc") String sort
     ) {
         return service.searchMembers(q, role, sort, p, size);
@@ -34,14 +34,20 @@ public class AdminMemberController {
         return ResponseEntity.ok(dto);
     }
 
-    // 상태 변경 엔드포인트 제거
-
     @PatchMapping("/{mno}/role")
     public ResponseEntity<?> changeRole(@PathVariable Long mno, @RequestBody RoleBody body) {
         boolean ok = service.updateRole(mno, body.getRole());
         return ok ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
+    @DeleteMapping("/{mno}")
+    public ResponseEntity<?> delete(@PathVariable Long mno) {
+        boolean ok = service.deleteMember(mno);
+        return ok ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
+    }
+
     @Getter @NoArgsConstructor @AllArgsConstructor
     static class RoleBody { private String role; }
 }
+}
+
