@@ -45,8 +45,8 @@ public class FoodService {
     //API를 불러와서 요청한 정보를 가공하는 method
     public List<FoodNutritionDTO> foodApiSearch(String searchTxt, int page) {
 
-        System.out.println("searchTxt in Controller: "+ searchTxt);
-        System.out.println("page in controller"+page);
+//        System.out.println("searchTxt in Controller: "+ searchTxt);
+//        System.out.println("page in controller"+page);
 
         pageNo = page;
 
@@ -55,6 +55,75 @@ public class FoodService {
         apiURL += "?ServiceKey=" + SERVICE_KEY;
         apiURL += "&pageNo=" + pageNo;
         apiURL += "&numOfRows=" + NUM_OF_ROWS;
+        apiURL += "&returnType=" + returnType;
+
+        //1. SearchTxt를 UTF-8형태로 encoding 후 URL에 추가
+        try {
+            prdlstNm = URLEncoder.encode(searchTxt,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        apiURL += "&prdlstNm=" + prdlstNm;
+
+        //2. URL Verification setting
+
+        HttpURLConnection conn = null;
+        URL url = null;
+
+        try {
+            url = new URL(apiURL);
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            //서버와 연결하는 최대시간 설정
+            conn.setConnectTimeout(5000);
+            //서버 연결후 응답을 기다리는 최대시간
+            conn.setReadTimeout(5000);
+
+            InputStream is = null;
+
+            if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
+                is = conn.getInputStream();
+            } else{
+                is = conn.getErrorStream();
+            }
+
+            String responseString = null;
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            responseString = br.lines().collect(Collectors.joining(System.lineSeparator()));
+//            System.out.println("responseString: " + responseString);
+
+            if(returnType.equals(returnType)){
+                return parseJsonToList(responseString);
+            } else {
+                return parseXmlToList(responseString);
+            }
+
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if(conn != null)
+                conn.disconnect();
+        }
+    }
+
+    //전체 api 데이터 목록 다 받아오는 메소드
+    public List<FoodNutritionDTO> foodCarouselSearch(String searchTxt, int page) {
+
+//        System.out.println("searchTxt in Controller: "+ searchTxt);
+//        System.out.println("page in controller"+page);
+
+        pageNo = page;
+
+        //pageNo
+        String apiURL = "https://apis.data.go.kr/B553748/CertImgListServiceV3/getCertImgListServiceV3";
+        apiURL += "?ServiceKey=" + SERVICE_KEY;
+        apiURL += "&pageNo=" + pageNo;
+        apiURL += "&numOfRows=" + 100;
         apiURL += "&returnType=" + returnType;
 
         //1. SearchTxt를 UTF-8형태로 encoding 후 URL에 추가
@@ -110,6 +179,7 @@ public class FoodService {
                 conn.disconnect();
         }
     }
+
 
     //String -> JSON -> list로 parsing(Jackson 이용)
     private List<FoodNutritionDTO> parseJsonToList(String json){
