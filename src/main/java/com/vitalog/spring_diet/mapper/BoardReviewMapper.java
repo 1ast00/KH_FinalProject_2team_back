@@ -1,14 +1,22 @@
 package com.vitalog.spring_diet.mapper;
 
+import com.vitalog.spring_diet.dto.BRCommentDTO;
+import com.vitalog.spring_diet.dto.BRFileDTO;
+import com.vitalog.spring_diet.dto.BoardReviewDTO;
+import com.vitalog.spring_diet.vo.PagingVo;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
+import java.util.Map;
 
 @Mapper
 public interface BoardReviewMapper {
-/*  dec_25.08.27 작업 오류못잡아서 죄다 주석처리
-
+//  dec_25.08.27 안돌아간거 찾는 중.
 
     //게시판-게시글목록조회-페이징포함
-    List<BoardReviewDTO> selectReviewList(Map<String, Object> map);
+    List<BoardReviewDTO> selectReviewList(PagingVo pagingVo);
+    //특정 회원이 작성한 리뷰 총 개수 조회
+    int selectMyReviewTotalCount(int mno);
     //게시판-전체게시글개수조회
     int selectReviewTotalCount();
     //게시판-특정게시글 상세정보조회
@@ -59,7 +67,7 @@ public interface BoardReviewMapper {
     int checkCommentAwesome(Map<String, Object> map);
 
     //getcomment용
-    BRCommentDTO selectComment(int cno);
+    BRCommentDTO selectComment(int brcno);
 
- */
+
 }

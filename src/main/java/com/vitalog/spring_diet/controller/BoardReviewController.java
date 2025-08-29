@@ -1,12 +1,24 @@
 package com.vitalog.spring_diet.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vitalog.spring_diet.dto.BRCommentDTO;
+import com.vitalog.spring_diet.dto.BRFileDTO;
+import com.vitalog.spring_diet.dto.BoardReviewDTO;
+import com.vitalog.spring_diet.service.BoardReviewService;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/reviews") // URL 경로를 /api/reviews로 변경
 public class BoardReviewController {
-/*  //dec_25.08.27_ 아직 안돌아가는데욤.
+//dec_25.08.27_ 돌아가게하고 찾는 중
     private final BoardReviewService boardReviewService;
 
     public BoardReviewController(BoardReviewService boardReviewService) {
@@ -95,7 +107,7 @@ public class BoardReviewController {
     public Map<String, Object> updateComment(@RequestBody BRCommentDTO comment,
                                              @RequestAttribute String authenticatedUserMno) {
         Map<String, Object> map = new HashMap<>();
-        BRCommentDTO originalComment = boardReviewService.getComment(comment.getCno());
+        BRCommentDTO originalComment = boardReviewService.getComment((Integer) comment.getBrcno());
 
         if (originalComment.getMno() == Long.parseLong(authenticatedUserMno)) {
             boardReviewService.updateComment(comment);
@@ -111,7 +123,7 @@ public class BoardReviewController {
     public Map<String, Object> writeComment(@RequestBody BRCommentDTO comment,
                                             @RequestAttribute String authenticatedUserMno) {
         Map<String, Object> map = new HashMap<>();
-        comment.setMno(Long.parseLong(authenticatedUserMno));
+        comment.setMno(Integer.parseInt(authenticatedUserMno));
 
         try {
             boardReviewService.insertComment(comment);
@@ -131,7 +143,7 @@ public class BoardReviewController {
                                            @RequestPart("params") String params,
                                            @RequestPart(value = "files", required = false) MultipartFile[] files) throws IOException {
         Map<String, Object> map = new HashMap<>();
-        long mno = Long.parseLong(authenticatedUserMno);
+        Integer mno = Integer.parseInt(authenticatedUserMno);
 
         // 1. JSON 파라미터 파싱
         ObjectMapper objectMapper = new ObjectMapper();
@@ -173,5 +185,4 @@ public class BoardReviewController {
     }
 
     // 파일 다운로드 제공 안할거임.
-*/
 }
