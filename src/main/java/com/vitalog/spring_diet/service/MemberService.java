@@ -11,7 +11,7 @@ import java.util.Map;
 public class MemberService {
     private final MemberMapper memberMapper;
 
-    public MemberService(MemberMapper memberMapper){
+    public MemberService(MemberMapper memberMapper) {
         this.memberMapper = memberMapper;
     }
 
