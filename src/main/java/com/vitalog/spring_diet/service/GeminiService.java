@@ -2,60 +2,66 @@ package com.vitalog.spring_diet.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.Map;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class GeminiService {
 
-    // ExerciseConfig에 이미 Bean으로 등록된 RestTemplate을 주입받기
-    private final RestTemplate restTemplate;
-
-    // application.properties에서 API 키를 주입받기
     @Value("${gemini.api.key}")
     private String apiKey;
 
+    public GeminiService() {
+    }
+
     public String getResponseFromGemini(String prompt) {
-        // 1. Gemini API 호출을 위한 URL
         String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
 
-        // 2. HTTP 헤더 설정 (Postman에서 했던 것과 동일)
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        // 3. HTTP 바디(Body) 생성 (Postman에서 raw JSON으로 넣었던 부분)
-        Map<String, Object> requestBody = Map.of(
-                "contents", new Object[] {
-                        Map.of(
-                                "parts", new Object[] {
-                                        Map.of("text", prompt)
-                                }
-                        )
-                }
-        );
-
-        // 4. 헤더와 바디를 합쳐서 HTTP 요청 객체 생성
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-
         try {
-            // 5. RestTemplate을 사용해 POST 요청 보내고 응답(JSON) 받기
-            String jsonResponse = restTemplate.postForObject(apiUrl, entity, String.class);
+            // 1. 요청할 JSON 바디(Body)를 문자열로 생성
+            // ObjectMapper를 사용해 Map을 JSON 문자열로 변환
+            Map<String, Object> requestBodyMap = Map.of(
+                    "contents", new Object[] {
+                            Map.of(
+                                    "parts", new Object[] {
+                                            Map.of("text", prompt)
+                                    }
+                            )
+                    }
+            );
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(requestBodyMap);
 
-            // 6. 응답받은 JSON에서 원하는 텍스트만 추출하기 (ExerciseService에서 했던 방식)
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(jsonResponse);
-            // JSON 경로: candidates -> 0 -> content -> parts -> 0 -> text
+            // 2. HttpClient 객체 생성
+            HttpClient client = HttpClient.newHttpClient();
+
+            // 3. POST 방식의 HttpRequest 객체 생성
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl))
+                    .header("Content-Type", "application/json") // 헤더 설정
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody)) // POST 메서드와 바디 설정
+                    .build();
+
+            // 4. 요청 전송 및 응답 수신
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            // 5. 응답받은 JSON에서 원하는 텍스트만 추출
+            JsonNode root = objectMapper.readTree(response.body());
             String responseText = root.path("candidates").get(0).path("content").path("parts").get(0).path("text").asText();
+
+            // 응답이 비어있으면 AI가 부적절한 답변 등으로 응답 생성을 거부한 경우일 수 있음
+            if (responseText.isEmpty()) {
+                log.warn("Gemini API로부터 비어있는 응답을 받았습니다. JSON: {}", response.body());
+                return "AI가 응답을 생성하지 못했습니다. 질문을 바꿔서 시도해 보세요.";
+            }
 
             return responseText;
 
