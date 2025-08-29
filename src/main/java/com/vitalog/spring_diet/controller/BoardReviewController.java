@@ -123,7 +123,7 @@ public class BoardReviewController {
     public Map<String, Object> writeComment(@RequestBody BRCommentDTO comment,
                                             @RequestAttribute String authenticatedUserMno) {
         Map<String, Object> map = new HashMap<>();
-        comment.setMno(Long.parseLong(authenticatedUserMno));
+        comment.setMno(Integer.parseInt(authenticatedUserMno));
 
         try {
             boardReviewService.insertComment(comment);
@@ -143,7 +143,7 @@ public class BoardReviewController {
                                            @RequestPart("params") String params,
                                            @RequestPart(value = "files", required = false) MultipartFile[] files) throws IOException {
         Map<String, Object> map = new HashMap<>();
-        long mno = Long.parseLong(authenticatedUserMno);
+        Integer mno = Integer.parseInt(authenticatedUserMno);
 
         // 1. JSON 파라미터 파싱
         ObjectMapper objectMapper = new ObjectMapper();

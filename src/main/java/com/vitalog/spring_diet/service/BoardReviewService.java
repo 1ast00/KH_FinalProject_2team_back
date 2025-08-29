@@ -12,13 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.File;
 
 @Service
 @RequiredArgsConstructor
 public class BoardReviewService {
 
     private final BoardReviewMapper boardReviewMapper;
-// dec+25.08.27 안돌아가는데 올리고 돌아가게 하려고 애쓰는 중.
+// dec+25.08.29수정
 
     //전체 게시글 목록 조회 -페이징 포함
     public Map<String, Object> getReviewList(int pageNo, int pageContentEa) {
