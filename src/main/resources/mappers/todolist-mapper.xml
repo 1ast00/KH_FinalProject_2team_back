@@ -4,7 +4,7 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.TodoListMapper">
     <select id="selectTodoList" resultType="todo">
-        select * from todolist where mno = #{mno} and tdate = #{date}
+        select * from todolist_view where mno = #{mno} and tdate = #{date}
     </select>
 
     <insert id="insertTodo">
