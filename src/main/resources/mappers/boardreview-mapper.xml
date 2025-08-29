@@ -4,7 +4,6 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.BoardReviewMapper">
 <!--    <resultMap id="BoardReviewMap" type="boardReview">-->
-
 <!--        <id property="brno" column="brno"/>-->
 <!--        <result property="brtitle" column="brtitle"/>-->
 <!--        <result property="brcontent" column="brcontent"/>-->
