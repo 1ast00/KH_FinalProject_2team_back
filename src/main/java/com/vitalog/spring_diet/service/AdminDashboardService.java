@@ -1,4 +1,3 @@
-// src/main/java/com/vitalog/spring_diet/service/AdminDashboardService.java
 package com.vitalog.spring_diet.service;
 
 import com.vitalog.spring_diet.dto.admindashboard.*;
@@ -39,7 +38,6 @@ public class AdminDashboardService {
     // 대시보드 요약 (회원수, BMI, 목표달성, 성별 분포, 역할 분포)
     public AdminDashboardDTO getSummaryOnly() {
         int totalMembers = dashboardMapper.countMembers();
-
         Double avgBmi = dashboardMapper.avgBmi();
         if (avgBmi == null) avgBmi = 0.0;
 

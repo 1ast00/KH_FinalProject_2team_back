@@ -28,7 +28,7 @@ public interface AdminMemberMapper {
     List<PostItemDTO> selectRecentReviewPosts(@Param("mno") Long mno, @Param("limit") int limit);
     List<CommentItemDTO> selectRecentDietComments(@Param("mno") Long mno, @Param("limit") int limit);
     List<CommentItemDTO> selectRecentReviewComments(@Param("mno") Long mno, @Param("limit") int limit);
-
+  
     // 업데이트
     int updateMemberRole(@Param("mno") Long mno, @Param("role") String role);
 
