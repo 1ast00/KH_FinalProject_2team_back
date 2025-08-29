@@ -3,16 +3,28 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.MemberMapper">
-    <select id="findByMemberid" resultType="member">
+    <resultMap id="member" type="member">
+        <id column="mno" property="mno" />
+        <result column="userid" property="userid" />
+        <result column="password" property="password" />
+        <result column="mname" property="mname" />
+        <result column="nickname" property="nickname" />
+        <result column="height" property="height" />
+        <result column="weight" property="weight" />
+        <result column="gender" property="gender" />
+        <result column="goal_weight" property="goalweight" />
+        <result column="role" property="role" />
+    </resultMap>
+    <select id="findByMemberid" resultMap="member">
         select * from member
         where userid = #{userid}
     </select>
-    <!--트리거를 통한 mno 자동 생성-->
+    <!-- 트리거를 통한 mno 자동 생성 -->
     <insert id="registerMember">
         insert into member (userid, password, mname, nickname, height, weight, gender, goal_weight, role)
         values(#{userid}, #{password}, #{mname}, #{nickname}, #{height}, #{weight}, #{gender}, #{goalweight}, #{role})
     </insert>
-    <select id="findByid" resultType="member">
+    <select id="findByid" resultMap="member">
         select * from member
         where mno = #{mno}
     </select>
@@ -28,6 +40,12 @@
         update member set password = #{password}
         where userid = #{userid}
     </update>
+
+    <update id="updateUser">
+        update member set mname = #{mname}, nickname = #{nickname}, goal_weight = #{goalweight}
+        where userid = #{userid}
+    </update>
+
     <!-- 현재 체중 갱신  -->
     <update id="updateWeight"> update member set weight = #{weight} where mno = #{mno} </update>
 </mapper>

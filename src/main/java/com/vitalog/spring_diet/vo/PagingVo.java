@@ -1,10 +1,14 @@
 package com.vitalog.spring_diet.vo;
 
+import org.apache.ibatis.type.Alias;
+
+@Alias("PagingVo")
 public class PagingVo {
 
     private int count;
     private int currentPage;
     private int pageOfContentCount;
+    private long mno; //add_25.08.27
     private final int PAGE_GROUP_OF_COUNT = 4;
 
     public PagingVo(int count, int currentPage, int pageOfContentCount){
@@ -23,6 +27,14 @@ public class PagingVo {
 
     public void setPageOfContentCount(int pageOfContentCount){
         this.pageOfContentCount = pageOfContentCount;
+    }
+
+    //add_25.08.27
+    public long getMno() {
+        return mno;
+    }
+    public void setMno(long mno) {
+        this.mno = mno;
     }
 
     //전체 페이지 개수 : 전체 게시글 개수 / 한페이지당 출력할 게시글 개수 + (나머지가 0 아니면 1)
