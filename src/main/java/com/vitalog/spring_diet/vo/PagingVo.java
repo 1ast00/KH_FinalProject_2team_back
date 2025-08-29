@@ -1,5 +1,8 @@
 package com.vitalog.spring_diet.vo;
 
+import org.apache.ibatis.type.Alias;
+
+@Alias("PagingVo")
 public class PagingVo {
 
     private int count;

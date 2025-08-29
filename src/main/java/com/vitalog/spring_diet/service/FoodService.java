@@ -1,3 +1,4 @@
+
 package com.vitalog.spring_diet.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -127,6 +128,9 @@ public class FoodService {
 
             Map<String,Object> body = (Map<String, Object>) map.get("body");
             System.out.println("body: "+body);
+            Integer totalCount = Integer.parseInt((String) body.get("totalCount"));
+            System.out.println("totalCount: "+totalCount);
+
             //body가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌: null safe
             if(body == null) return resultList;
 
@@ -141,22 +145,42 @@ public class FoodService {
                 System.out.println("item: "+item);
 
                 FoodNutritionDTO foodDTO = new FoodNutritionDTO();
-                //주키
-                foodDTO.setPrdlstReportNo((String) item.get("prdlstReportNo"));
+                //주키:null safe
+                String prdlistReportNo = (String) item.get("prdlstReportNo");
+                foodDTO.setPrdlstReportNo(prdlistReportNo != null ? prdlistReportNo : "정보없음");
 
-                //rnum이 비어있을 시 대비: null safe
+                //객체의 다른 property가 비어있을 시 대비: null safe
                 String rnumStr = (String) item.get("rnum");
                 foodDTO.setRnum(rnumStr != null ? Integer.parseInt(rnumStr) : 0);
 
-                foodDTO.setProductGb((String) item.get("productGb"));
-                foodDTO.setPrdlstNm((String) item.get("prdlstNm"));
-                foodDTO.setRawmtrl((String) item.get("rawmtrl"));
-                foodDTO.setAllergy((String) item.get("allergy"));
-                foodDTO.setNutrient((String) item.get("nutrient"));
-                foodDTO.setPrdkind((String) item.get("prdkind"));
-                foodDTO.setManufacture((String) item.get("manufacture"));
-                foodDTO.setImgurl1((String) item.get("imgurl1"));
-                foodDTO.setImgurl2((String) item.get("imgurl2"));
+                String productGb = (String) item.get("productGb");
+                foodDTO.setProductGb(productGb != null ? productGb : "정보없음");
+
+                String prdlstNm = (String) item.get("prdlstNm");
+                foodDTO.setPrdlstNm(prdlstNm != null ? prdlstNm : "정보없음");
+
+                String rawmtrl = (String) item.get("rawmtrl");
+                foodDTO.setRawmtrl(rawmtrl != null ? rawmtrl : "정보없음");
+
+                String allergy = (String) item.get("allergy");
+                foodDTO.setAllergy(allergy != null ? allergy : "정보없음");
+
+                String nutrient = (String) item.get("nutrient");
+                foodDTO.setNutrient(nutrient != null ? nutrient : "정보없음");
+
+                String prdkind = (String) item.get("prdkind");
+                foodDTO.setPrdkind(prdkind != null ? prdkind : "정보없음");
+
+                String manufacture = (String) item.get("manufacture");
+                foodDTO.setManufacture(manufacture != null ? manufacture: "정보없음");
+
+                String imgurl1 = (String) item.get("imgurl1");
+                foodDTO.setImgurl1(imgurl1 != null? imgurl1 : "정보없음");
+
+                String imgurl2 = (String) item.get("imgurl2");
+                foodDTO.setImgurl2(imgurl2 != null? imgurl2: "정보없음");
+
+                foodDTO.setTotalCount(totalCount != null? totalCount: 0);
 
                 resultList.add(foodDTO);
             }

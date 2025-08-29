@@ -27,4 +27,5 @@ public class FoodNutritionDTO {
     private String manufacture;
     private String imgurl1;
     private String imgurl2;
+    private int totalCount;
 }
