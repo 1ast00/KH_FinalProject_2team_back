@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitalog.spring_diet.mapper.AdminMemberMapper">
+
+    <!-- 목록 -->
+    <select id="selectMembers" resultType="com.vitalog.spring_diet.dto.admindashboard.MemberListItemDTO">
+        SELECT
+        LPAD(m.mno, 4, '0') AS memberNo,
+        m.userid,
+        m.gender,
+        m.role,
+        'ACTIVE' AS status
+        FROM member m
+        WHERE 1=1
+        <if test="q != null and q != ''">
+            AND LOWER(m.userid) LIKE '%' || LOWER(#{q}) || '%'
+        </if>
+        <if test="role != null and role != 'ALL'">
+            AND m.role = #{role}
+        </if>
+        ORDER BY
+        <choose>
+            <when test="sort == 'mno,desc'"> m.mno DESC </when>
+            <otherwise> m.mno ASC </otherwise>
+        </choose>
+        OFFSET (#{p}-1) * #{size} ROWS FETCH NEXT #{size} ROWS ONLY
+    </select>
+
+    <select id="countMembers" resultType="int">
+        SELECT COUNT(*)
+        FROM member m
+        WHERE 1=1
+        <if test="q != null and q != ''">
+            AND LOWER(m.userid) LIKE '%' || LOWER(#{q}) || '%'
+        </if>
+        <if test="role != null and role != 'ALL'">
+            AND m.role = #{role}
+        </if>
+    </select>
+
+    <!-- 상세 기본 (기존 그대로) -->
+    <select id="selectMemberBasic" resultType="com.vitalog.spring_diet.dto.admindashboard.MemberBasicDTO">
+        SELECT
+        LPAD(m.mno, 4, '0') AS memberNo,
+        m.mno,
+        m.userid,
+        m.nickname,
+        m.gender,
+        m.height,
+        m.weight,
+        m.goal_weight AS goalWeight,
+        m.role,
+        'ACTIVE' AS status
+        FROM member m
+        WHERE m.mno = #{mno}
+    </select>
+
+    <!-- 활동 요약/최근 글·댓글 (기존 그대로) -->
+    <select id="countDietPostsByMember" resultType="int">
+        SELECT COUNT(*) FROM board_meals WHERE member_id = #{mno}
+    </select>
+    <select id="countReviewPostsByMember" resultType="int">
+        SELECT COUNT(*) FROM board_review WHERE member_id = #{mno}
+    </select>
+    <select id="countDietCommentsByMember" resultType="int">
+        SELECT COUNT(*) FROM board_meals_comment WHERE member_id = #{mno}
+    </select>
+    <select id="countReviewCommentsByMember" resultType="int">
+        SELECT COUNT(*) FROM board_review_comment WHERE member_id = #{mno}
+    </select>
+
+    <select id="selectRecentDietPosts" resultType="com.vitalog.spring_diet.dto.admindashboard.PostItemDTO">
+        SELECT 'DIET' AS board,
+        bm.bmno AS id,
+        bm.title,
+        TO_CHAR(bm.created_at, 'YYYY-MM-DD') AS createdDate,
+        CASE WHEN NVL(bm.visible, 1) = 1 THEN 1 ELSE 0 END AS visible
+        FROM board_meals bm
+        WHERE bm.member_id = #{mno}
+        ORDER BY bm.created_at DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
+    <select id="selectRecentReviewPosts" resultType="com.vitalog.spring_diet.dto.admindashboard.PostItemDTO">
+        SELECT 'REVIEW' AS board,
+        br.brno AS id,
+        br.title,
+        TO_CHAR(br.created_at, 'YYYY-MM-DD') AS createdDate,
+        CASE WHEN NVL(br.visible, 1) = 1 THEN 1 ELSE 0 END AS visible
+        FROM board_review br
+        WHERE br.member_id = #{mno}
+        ORDER BY br.created_at DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
+    <select id="selectRecentDietComments" resultType="com.vitalog.spring_diet.dto.admindashboard.CommentItemDTO">
+        SELECT 'DIET' AS board,
+        c.id,
+        c.bmno AS postId,
+        p.title AS postTitle,
+        SUBSTR(REPLACE(c.content, CHR(10), ' '), 1, 60) AS excerpt,
+        TO_CHAR(c.created_at, 'YYYY-MM-DD') AS createdDate,
+        CASE WHEN NVL(c.visible, 1) = 1 THEN 1 ELSE 0 END AS visible
+        FROM board_meals_comment c
+        JOIN board_meals p ON p.bmno = c.bmno
+        WHERE c.member_id = #{mno}
+        ORDER BY c.created_at DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
+    <select id="selectRecentReviewComments" resultType="com.vitalog.spring_diet.dto.admindashboard.CommentItemDTO">
+        SELECT 'REVIEW' AS board,
+        c.id,
+        c.brno AS postId,
+        p.title AS postTitle,
+        SUBSTR(REPLACE(c.content, CHR(10), ' '), 1, 60) AS excerpt,
+        TO_CHAR(c.created_at, 'YYYY-MM-DD') AS createdDate,
+        CASE WHEN NVL(c.visible, 1) = 1 THEN 1 ELSE 0 END AS visible
+        FROM board_review_comment c
+        JOIN board_review p ON p.brno = c.brno
+        WHERE c.member_id = #{mno}
+        ORDER BY c.created_at DESC
+        FETCH FIRST #{limit} ROWS ONLY
+    </select>
+
+    <!-- 업데이트 -->
+    <update id="updateMemberRole">
+        UPDATE member SET role = #{role} WHERE mno = #{mno}
+    </update>
+
+    <!-- 삭제 추가 -->
+    <delete id="deleteMember">
+        DELETE FROM member WHERE mno = #{mno}
+    </delete>
+</mapper>
