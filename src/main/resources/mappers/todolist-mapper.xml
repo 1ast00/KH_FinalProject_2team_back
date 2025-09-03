@@ -4,10 +4,51 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.TodoListMapper">
     <select id="selectTodoList" resultType="todo">
-        select * from todoList where mno = #{mno} and tdate = #{date}
+        select * from todolist_view where mno = #{mno} and tdate = #{date}
     </select>
 
     <insert id="insertTodo">
         insert into todolist (mno, tdate, tcontent) values (#{mno}, #{tdate}, #{tcontent})
     </insert>
+
+    <select id="selectByTno">
+        select Max(tno) from todolist where mno = #{mno}
+    </select>
+
+    <update id="updateTodoCheck">
+        update todolist
+        set tcheck = case
+        <foreach collection="todos" item="todo">
+            when tno = #{todo.tno} then #{todo.tcheck}
+        </foreach>
+        else tcheck
+        end
+        where mno = #{mno}
+        and
+        tno in
+        <foreach collection="todos" item="todo" open="(" close=")" separator=",">
+            #{todo.tno}
+        </foreach>
+    </update>
+
+    <delete id="deleteTodo">
+        delete from todolist where tno = #{tno} and mno = #{mno}
+    </delete>
+
+    <delete id="deleteDoneTodo">
+        delete from todolist
+        <where>
+            mno = #{mno}
+            <if test="doneTodos != null and doneTodos.size > 0">
+                and tno in
+                <foreach collection="doneTodos" item="todo" open="(" separator="," close=")">
+                    #{todo.tno}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+
+    <update id="updateTodo">
+        update todolist set tcontent = #{tcontent} where mno = #{mno} and tno = #{tno}
+    </update>
 </mapper>

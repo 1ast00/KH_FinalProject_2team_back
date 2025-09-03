@@ -11,7 +11,7 @@ import java.util.Map;
 public class MemberService {
     private final MemberMapper memberMapper;
 
-    public MemberService(MemberMapper memberMapper){
+    public MemberService(MemberMapper memberMapper) {
         this.memberMapper = memberMapper;
     }
 
@@ -54,7 +54,7 @@ public class MemberService {
         return memberMapper.updateUser(mname, nickname, goalweight, userid);
     }
 
-    //현재 체중 갱신
+    // 현재 체중 갱신
     public void updateWeight(int mno, double weight) {
         memberMapper.updateWeight(Map.of("mno", mno, "weight", weight));
     }
