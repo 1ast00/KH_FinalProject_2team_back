@@ -2,7 +2,6 @@ package com.vitalog.spring_diet.mapper;
 
 import com.vitalog.spring_diet.dto.HealthDailyLogDTO;
 import org.apache.ibatis.annotations.Mapper;
-
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -20,4 +19,9 @@ public interface HealthDailyLogMapper {
 
     int countByDate(Map<String, Object> params); // {mno, date}
     int countByDate(@Param("mno") int mno, @Param("hdate") String hdate);
+
+    // 0903 최신 체중 조회 추가 - 시작
+    /** 회원의 가장 최근 건강일지의 hweight 반환 (없으면 null) */
+    Double selectLatestWeight(@Param("mno") int mno);
+    // 0903 최신 체중 조회 추가 - 끝
 }
