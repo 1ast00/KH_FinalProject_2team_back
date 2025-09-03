@@ -21,17 +21,21 @@ public class BoardReviewService {
     private final BoardReviewMapper boardReviewMapper;
 // dec+25.08.29수정
 
-    //전체 게시글 목록 조회 -페이징 포함
-    public Map<String, Object> getReviewList(int pageNo, int pageContentEa) {
+    //전체 게시글 목록 조회 -페이징 포함 되던거.
+//    public Map<String, Object> getReviewList(int pageNo, int pageContentEa) {
+    public Map<String, Object> getReviewList() {
         int totalCount = boardReviewMapper.selectReviewTotalCount();
-        PagingVo pagingVo = new PagingVo(totalCount, pageNo, pageContentEa);
+//        PagingVo pagingVo = new PagingVo(totalCount, pageNo, pageContentEa);
 
     // PagingVo 객체를 Mapper에 직접 전달 (수정된 부분)
-        List<BoardReviewDTO> list = boardReviewMapper.selectReviewList(pagingVo);
+//        List<BoardReviewDTO> list = boardReviewMapper.selectReviewList(pagingVo);
+        List<BoardReviewDTO> list = boardReviewMapper.selectReviewList();
 
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("reviewList", list);
-        resultMap.put("paging", pagingVo);
+        System.out.println("reviewList,size: " + list.size());
+        System.out.println(list);
+//        resultMap.put("paging", pagingVo);
 
         return resultMap;
     }
@@ -42,7 +46,8 @@ public class BoardReviewService {
         PagingVo pagingVo = new PagingVo(totalCount, pageNo, pageContentEa);
         pagingVo.setMno(mno); // PagingVo에 사용자 번호 설정
 
-        List<BoardReviewDTO> list = boardReviewMapper.selectReviewList(pagingVo);
+//        List<BoardReviewDTO> list = boardReviewMapper.selectReviewList(pagingVo);
+        List<BoardReviewDTO> list = boardReviewMapper.selectReviewList();
 
         Map<String, Object> resultMap = new HashMap<>();
         resultMap.put("reviewList", list);
@@ -52,18 +57,32 @@ public class BoardReviewService {
     }
  
     //게시글 상세 정보 조회 -조회수 증가 포함
+//    @Transactional
+//    public Map<String, Object> getReviewDetail(int brno) {
+//        //boardReviewMapper.updateHitCount(brno); 컬럼명 변경
+//        boardReviewMapper.updateViewCount(brno);
+//
+//        BoardReviewDTO review = boardReviewMapper.selectReview(brno);
+//        List<BRCommentDTO> commentList = boardReviewMapper.selectCommentList(brno);
+//        List<BRFileDTO> fileList = boardReviewMapper.selectFileList(brno);
+//
+//        Map<String, Object> map = new HashMap<>();
+//        map.put("review", review);
+//        map.put("commentList", commentList);
+//        map.put("fileList", fileList);
+//
+//        return map;
+//    }
     @Transactional
     public Map<String, Object> getReviewDetail(int brno) {
-        boardReviewMapper.updateHitCount(brno);
+        boardReviewMapper.updateViewCount(brno);
 
         BoardReviewDTO review = boardReviewMapper.selectReview(brno);
-        List<BRCommentDTO> commentList = boardReviewMapper.selectCommentList(brno);
-        List<BRFileDTO> fileList = boardReviewMapper.selectFileList(brno);
+        int awesomeCount = boardReviewMapper.selectReviewAwesomeCount(brno); // 좋아요 개수 조회
 
         Map<String, Object> map = new HashMap<>();
         map.put("review", review);
-        map.put("commentList", commentList);
-        map.put("fileList", fileList);
+        map.put("awesomeCount", awesomeCount); // 좋아요 개수 추가
 
         return map;
     }
@@ -98,7 +117,9 @@ public class BoardReviewService {
      //게시글 작성 (파일 포함) - dec_25.08.27 test 안됨.
     @Transactional
     public int writeReview(BoardReviewDTO review, List<BRFileDTO> fileList) {
+        System.out.println("insertReview 호출 전 brno: " + review.getBrno());
         int result = boardReviewMapper.insertReview(review);
+        System.out.println("insertReview 호출 후 brno: " + review.getBrno());//값확인
         if (fileList != null && !fileList.isEmpty()) {
             for (BRFileDTO file : fileList) {
                 file.setBrno(review.getBrno());
