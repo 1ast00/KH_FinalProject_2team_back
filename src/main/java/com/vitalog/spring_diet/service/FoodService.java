@@ -1,3 +1,4 @@
+
 package com.vitalog.spring_diet.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -242,13 +243,13 @@ public class FoodService {
 
                 String manufacture = (String) item.get("manufacture");
                 foodDTO.setManufacture(manufacture != null ? manufacture: "정보없음");
-                
+
                 String imgurl1 = (String) item.get("imgurl1");
                 foodDTO.setImgurl1(imgurl1 != null? imgurl1 : "정보없음");
 
                 String imgurl2 = (String) item.get("imgurl2");
                 foodDTO.setImgurl2(imgurl2 != null? imgurl2: "정보없음");
-                
+
                 foodDTO.setTotalCount(totalCount != null? totalCount: 0);
 
                 resultList.add(foodDTO);
