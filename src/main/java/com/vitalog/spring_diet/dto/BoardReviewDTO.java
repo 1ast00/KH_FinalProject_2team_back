@@ -2,17 +2,17 @@ package com.vitalog.spring_diet.dto;
 
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
-
-import java.util.Date;
+import java.sql.Date;
 
 @Data
 @Alias("boardReview")
 public class BoardReviewDTO {
-    private long brno;
+    private int brno;
+    private int mno;
     private String brtitle;
-    private String brcontent;
+    private String brcontent;  //update 25.08.29
     private Date brwrite_date;
     private Date brwrite_update;
-    private long brhitcount;
-    private long brdanger;
+    private int brhitcount;
+    private int brdanger;
 }
