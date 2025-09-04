@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vitalog.spring_diet.mapper.ExerciseMapper">
+
+    <resultMap id="exerciseResultMap" type="com.vitalog.spring_diet.dto.ExerciseDTO">
+        <result property="exerciseName" column="EXERCISE_NAME"/>
+        <result property="energyConsumption" column="ERNERGY_PER_KG"/>
+    </resultMap>
+
+    <select id="selectRecommendedExercises" resultMap="exerciseResultMap">
+        SELECT
+        EXERCISE_NAME,
+        ERNERGY_PER_KG
+        FROM (
+        SELECT
+        EXERCISE_NAME,
+        ERNERGY_PER_KG
+        FROM
+        EXERCISE_REFERENCE
+        ORDER BY
+        ORA_HASH(EXERCISE_NAME || TO_CHAR(SYSDATE, 'YYYYMMDD'))
+        )
+        WHERE ROWNUM &lt;= 5
+    </select>
+
+</mapper>

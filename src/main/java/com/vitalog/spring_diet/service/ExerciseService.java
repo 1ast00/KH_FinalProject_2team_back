@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vitalog.spring_diet.dto.ExerciseDTO;
+import com.vitalog.spring_diet.mapper.ExerciseMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +16,18 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ExerciseService {
 
     @Value("${exercise.api.service-key}")
     private String serviceKey;
 
-    public ExerciseService() {
+    // DB 연동(ExerciseMapper를 의존성으로 주입받음)
+    private final ExerciseMapper exerciseMapper;
+
+    // MyBatis를 사용하여 DB에서 운동 추천 데이터를 가져오는 메서드
+    public List<ExerciseDTO> getRecommendedExercises() {
+        return exerciseMapper.selectRecommendedExercises();
     }
 
     public List<ExerciseDTO> getExerciseData() {
