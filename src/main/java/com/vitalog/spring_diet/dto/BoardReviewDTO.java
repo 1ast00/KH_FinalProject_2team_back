@@ -15,5 +15,13 @@ public class BoardReviewDTO {
     private Date brwrite_update;
     private int brdanger;
     private int brviewcount;
-    private String mname;;//update 25.09.03
+    private String nickname;//update 25.09.03
+    private int awesomeCount;
+
+    public int getAwesomeCount() {
+        return awesomeCount;
+    }
+    public void setAwesomeCount(int awesomeCount) {
+        this.awesomeCount = awesomeCount;
+    }
 }
