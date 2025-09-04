@@ -6,10 +6,10 @@ import org.apache.ibatis.type.Alias;
 import java.sql.Date;
 
 @Data
-@Alias("BoardWeekly")
+@Alias("boardWeekly")
 public class BoardWeeklyDTO {
-    private Number bwno;
-    private Number age_goup;
+    private int bwno;
+    private int age_goup;
     private Date bwcreated_at;
-    private Number bwdanger;
+    private int bwdanger;
 }

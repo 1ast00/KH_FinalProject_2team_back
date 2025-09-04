@@ -64,4 +64,8 @@ public class AdminMemberService {
     public boolean updateRole(Long mno, String role) {
         return mapper.updateMemberRole(mno, role) > 0;
     }
+
+    public boolean deleteMember(Long mno) {
+        return mapper.deleteMember(mno) > 0;
+    }
 }

@@ -6,9 +6,10 @@ import org.apache.ibatis.type.Alias;
 import java.sql.Date;
 
 @Data
-@Alias("BMComment")
+@Alias("bMComment")
 public class BMCommentDTO {
-    private Number bmcno;
+    private int bmcno;
+    private int mno;
     private String brccontent;
     private Date brcwrite_date;
     private Date brcwrite_update;
