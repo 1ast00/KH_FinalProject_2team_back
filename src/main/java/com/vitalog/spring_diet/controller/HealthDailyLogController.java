@@ -84,7 +84,7 @@ public class HealthDailyLogController {
     public static class HealthDailyLogRequest {
         private String hdate;        // YYYY-MM-DD
         private String sleeptime;    // HH:MM
-        private Double weight;       // 최신글이면 member.weight 갱신
+        private Double weight;       // ← 프론트 입력명 유지(백엔드에선 hweight로 저장)
         private Double wateramount;
         private String exercise;     // (폼에서 배열 → '\n'로 합쳐서 들어옴)
         private List<String> foods;  // 개행 join
@@ -94,7 +94,10 @@ public class HealthDailyLogController {
         var d = new HealthDailyLogDTO();
         d.setHdate(r.getHdate());
         d.setSleeptime(r.getSleeptime());
+        // 0903 hweight 매핑(프론트 weight → DTO hweight & weight 동시 세팅) - 시작
+        d.setHweight(r.getWeight());
         d.setWeight(r.getWeight());
+        // 0903 hweight 매핑(프론트 weight → DTO hweight & weight 동시 세팅) - 끝
         d.setWateramount(r.getWateramount());
         d.setExercise(r.getExercise());
         if (r.getFoods() != null)
