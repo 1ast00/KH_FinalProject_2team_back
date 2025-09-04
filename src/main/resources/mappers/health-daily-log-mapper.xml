@@ -15,9 +15,8 @@
         , h.WATERAMOUNT                   AS wateramount
         , h.EXERCISE                      AS exercise
         , h.FOOD                          AS food
-        <!-- 0903 수정폼에서 정확한 날짜 초기화를 위한 ISO 날짜 추가 - 시작 -->
         , TO_CHAR(h.HDATE,'YYYY-MM-DD')   AS hdate
-        <!-- 0903 수정폼에서 정확한 날짜 초기화를 위한 ISO 날짜 추가 - 끝 -->ood
+        <!-- 0903 수정폼에서 정확한 날짜 초기화를 위한 ISO 날짜 추가 - 끝 -->
         FROM Health_Daily_Log h
         JOIN member m ON m.mno = h.mno
         WHERE h.MNO = #{mno}
