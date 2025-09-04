@@ -17,6 +17,8 @@ public interface BoardReviewMapper {
     List<BoardReviewDTO> selectReviewList();
     //특정 회원이 작성한 리뷰 총 개수 조회
     int selectMyReviewTotalCount(int mno);
+    // 좋아요를 누른 회원 ID 목록을 반환하는 메서드
+    List<Integer> selectAwesomeMemberIds(int brno);
     //게시판-전체게시글개수조회
     int selectReviewTotalCount();
     //게시판-특정게시글 상세정보조회

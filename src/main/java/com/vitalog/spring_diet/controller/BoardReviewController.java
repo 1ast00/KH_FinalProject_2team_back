@@ -35,7 +35,7 @@ public class BoardReviewController {
 //                                             @RequestParam(defaultValue = "10") int pageContentEa) {
 //        return boardReviewService.getReviewList(pageNo, pageContentEa);
 //    }
-@GetMapping("/list")
+    @GetMapping("/list")
     public Map<String, Object> getReviewList() {
     System.out.println("list com");
         return boardReviewService.getReviewList();
@@ -43,7 +43,7 @@ public class BoardReviewController {
 
     // 게시글 상세 조회
     @GetMapping("/detail/{brno}")
-    public Map<String, Object> getReviewDetail(@PathVariable int brno) {
+    public Map<String, Object> getReviewDetail(@PathVariable("brno") int brno) {
         return boardReviewService.getReviewDetail(brno);
     }
 

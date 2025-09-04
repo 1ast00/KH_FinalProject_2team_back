@@ -15,4 +15,5 @@ public class BRCommentDTO {
     private Date brcwrite_date;
     private Date brcwrite_update;
     private int brcdanger;
+    private String nickname;
 }

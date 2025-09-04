@@ -79,10 +79,12 @@ public class BoardReviewService {
 
         BoardReviewDTO review = boardReviewMapper.selectReview(brno);
         int awesomeCount = boardReviewMapper.selectReviewAwesomeCount(brno); // 좋아요 개수 조회
+        List<Integer> awesomeMemberIds = boardReviewMapper.selectAwesomeMemberIds(brno); // 좋아요 누른 회원 ID 목록 조회
 
         Map<String, Object> map = new HashMap<>();
         map.put("review", review);
         map.put("awesomeCount", awesomeCount); // 좋아요 개수 추가
+        map.put("awesomeMemberIds", awesomeMemberIds); //좋아요 누른 회원
 
         return map;
     }
