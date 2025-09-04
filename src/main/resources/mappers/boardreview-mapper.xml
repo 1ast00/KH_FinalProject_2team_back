@@ -13,7 +13,7 @@
         <result column="brwrite_update" property="brwrite_update" />
         <result column="brviewcount" property="brviewcount" />
         <result column="brdanger" property="brdanger" />
-        <result column="mname" property="mname" />
+        <result column="nickname" property="nickname" />
         <result column="awesomeCount" property="awesomeCount" />
     </resultMap>
 
@@ -37,7 +37,7 @@
 <!--    </select>    -->
     <select id="selectReviewList" resultMap="BoardReviewMap">
         SELECT
-        br.brno, br.brtitle, m.mname, br.brwrite_date, br.brviewcount,  br.brcontent, br.brwrite_update, br.brdanger
+        br.brno, br.brtitle, m.nickname, br.brwrite_date, br.brviewcount,  br.brcontent, br.brwrite_update, br.brdanger
         FROM boardreview br
         JOIN member m ON br.mno = m.mno
         ORDER BY br.brno DESC
@@ -101,6 +101,11 @@
         VALUES (#{brno}, #{brtitle}, #{brcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0)
     </insert>
 
+    <update id="updateViewCount" parameterType="int">
+        UPDATE boardreview
+        SET brviewcount = brviewcount + 1
+        WHERE brno = #{brno}
+    </update>
 
 <!--    <update id="updateReview" parameterType="board">-->
 <!--        UPDATE board_review-->
@@ -163,9 +168,13 @@
 <!--        DELETE FROM BRAwesome WHERE brno = #{brno} AND mno = #{mno}-->
 <!--    </delete>-->
 
-<!--    <select id="selectReviewAwesomeCount" parameterType="int" resultType="int">-->
-<!--        SELECT COUNT(*) FROM BRAwesome WHERE brno = #{brno}-->
-<!--    </select>-->
+    <select id="selectReviewAwesomeCount" resultType="int">
+        SELECT COUNT(*) FROM BRAwesome WHERE brno = #{brno}
+    </select>
+
+    <select id="selectAwesomeMemberIds" resultType="int">
+        SELECT mno FROM BRAwesome WHERE brno = #{brno}
+    </select>
 
 <!--    <select id="checkReviewAwesome" parameterType="map" resultType="int">-->
 <!--        SELECT COUNT(*) FROM BRAwesome WHERE brno = #{brno} AND mno = #{mno}-->
