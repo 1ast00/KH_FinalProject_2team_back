@@ -1,3 +1,5 @@
+// src/main/java/com/vitalog/spring_diet/controller/ExerciseApiController.java
+
 package com.vitalog.spring_diet.controller;
 
 import com.vitalog.spring_diet.dto.ExerciseDTO;
@@ -5,6 +7,7 @@ import com.vitalog.spring_diet.service.ExerciseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam; // @RequestParam import 추가
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -16,10 +19,10 @@ public class ExerciseApiController {
 
     private final ExerciseService exerciseService;
 
-    // '/api/exercise/recommendations' 경로의 GET 요청 처리(운동 추천) + 0904 추가
+    // getRecommendedExercises 메소드에 @RequestParam 파라미터 추가
     @GetMapping("/recommendations")
-    public List<ExerciseDTO> getRecommendedExercises() {
-        return exerciseService.getRecommendedExercises();
+    public List<ExerciseDTO> getRecommendedExercises(@RequestParam String exerciseType) {
+        return exerciseService.getRecommendedExercises(exerciseType);
     }
 
     @GetMapping("/data")

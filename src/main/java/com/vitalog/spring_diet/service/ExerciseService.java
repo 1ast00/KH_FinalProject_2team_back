@@ -1,3 +1,5 @@
+// src/main/java/com/vitalog/spring_diet/service/ExerciseService.java
+
 package com.vitalog.spring_diet.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -22,12 +24,12 @@ public class ExerciseService {
     @Value("${exercise.api.service-key}")
     private String serviceKey;
 
-    // DB 연동(ExerciseMapper를 의존성으로 주입받음)
     private final ExerciseMapper exerciseMapper;
 
-    // MyBatis를 사용하여 DB에서 운동 추천 데이터를 가져오는 메서드
-    public List<ExerciseDTO> getRecommendedExercises() {
-        return exerciseMapper.selectRecommendedExercises();
+    // getRecommendedExercises 메소드가 String 파라미터를 받도록 수정
+    public List<ExerciseDTO> getRecommendedExercises(String exerciseType) {
+        // 파라미터를 매퍼 메소드로 전달
+        return exerciseMapper.selectRecommendedExercises(exerciseType);
     }
 
     public List<ExerciseDTO> getExerciseData() {
@@ -45,7 +47,6 @@ public class ExerciseService {
                     .build();
 
             // 3. 요청 전송 및 응답 수신
-            // client.send(request, 응답 본문을 받을 방법)
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             // 4. 응답 본문(JSON 문자열) 파싱

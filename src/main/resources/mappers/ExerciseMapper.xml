@@ -21,8 +21,6 @@
         FROM
         EXERCISE_REFERENCE
         WHERE
-        -- exerciseType이 '실내/실외'인 경우엔 항상 포함,
-        -- 그 외엔 파라미터와 타입이 일치하는 경우만 포함
         EXERCISE_TYPE = '실내/실외' OR EXERCISE_TYPE = #{exerciseType, jdbcType=VARCHAR} ORDER BY
         ORA_HASH(EXERCISE_NAME || TO_CHAR(SYSDATE, 'YYYYMMDD'))
         )
