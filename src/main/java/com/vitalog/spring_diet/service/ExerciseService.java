@@ -1,9 +1,13 @@
+// src/main/java/com/vitalog/spring_diet/service/ExerciseService.java
+
 package com.vitalog.spring_diet.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vitalog.spring_diet.dto.ExerciseDTO;
+import com.vitalog.spring_diet.mapper.ExerciseMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,12 +18,18 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ExerciseService {
 
     @Value("${exercise.api.service-key}")
     private String serviceKey;
 
-    public ExerciseService() {
+    private final ExerciseMapper exerciseMapper;
+
+    // getRecommendedExercises 메소드가 String 파라미터를 받도록 수정
+    public List<ExerciseDTO> getRecommendedExercises(String exerciseType) {
+        // 파라미터를 매퍼 메소드로 전달
+        return exerciseMapper.selectRecommendedExercises(exerciseType);
     }
 
     public List<ExerciseDTO> getExerciseData() {
@@ -37,7 +47,6 @@ public class ExerciseService {
                     .build();
 
             // 3. 요청 전송 및 응답 수신
-            // client.send(request, 응답 본문을 받을 방법)
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
             // 4. 응답 본문(JSON 문자열) 파싱
