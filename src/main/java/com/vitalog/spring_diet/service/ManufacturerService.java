@@ -30,7 +30,7 @@ public class ManufacturerService {
                 {"행복담기㈜", "HangBokDamgi.png"},
                 {"한성기업㈜", "Hansung.png"},
                 {"㈜프로엠", "prom.jpg"},
-                {"풀무원건강생활㈜", "pulmuone.png"}
+                {"풀무원건강생활㈜", "pulmuone.png"},
         };
 
         List<ManufacturerDTO> mList = new ArrayList<>();

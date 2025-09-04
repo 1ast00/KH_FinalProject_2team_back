@@ -3,7 +3,6 @@ package com.vitalog.spring_diet.mapper;
 import com.vitalog.spring_diet.dto.BRCommentDTO;
 import com.vitalog.spring_diet.dto.BRFileDTO;
 import com.vitalog.spring_diet.dto.BoardReviewDTO;
-import com.vitalog.spring_diet.vo.PagingVo;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -14,7 +13,8 @@ public interface BoardReviewMapper {
 //  dec_25.08.27 안돌아간거 찾는 중.
 
     //게시판-게시글목록조회-페이징포함
-    List<BoardReviewDTO> selectReviewList(PagingVo pagingVo);
+//    List<BoardReviewDTO> selectReviewList(PagingVo pagingVo);
+    List<BoardReviewDTO> selectReviewList();
     //특정 회원이 작성한 리뷰 총 개수 조회
     int selectMyReviewTotalCount(int mno);
     //게시판-전체게시글개수조회
@@ -28,7 +28,7 @@ public interface BoardReviewMapper {
     //게시글 삭제 - 삭제할게시글번호/ 영향받은 행의수
     int deleteReview(int brno);
     //게시글조회수 1증가
-    void updateHitCount(int brno);
+    void updateViewCount(int brno);
     //brdanger 1 증가
     int updateDanger(int brno);
 
@@ -68,6 +68,5 @@ public interface BoardReviewMapper {
 
     //getcomment용
     BRCommentDTO selectComment(int brcno);
-
 
 }

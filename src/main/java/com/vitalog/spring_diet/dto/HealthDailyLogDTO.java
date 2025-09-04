@@ -28,3 +28,4 @@ public class HealthDailyLogDTO {
     private String exercise;
     private String food;
 }
+

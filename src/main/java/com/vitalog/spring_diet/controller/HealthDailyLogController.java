@@ -40,7 +40,7 @@ public class HealthDailyLogController {
             @Valid @RequestBody HealthDailyLogRequest req
     ) {
         int mno = Integer.parseInt(authenticatedUsermno);
-
+      
         // [검증] 몸무게 필수
         if (req.getWeight() == null) {
             return ResponseEntity.ok(Map.of("code", 4, "msg", "몸무게를 입력해 주세요."));
