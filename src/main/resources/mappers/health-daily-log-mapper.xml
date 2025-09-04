@@ -3,20 +3,20 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.HealthDailyLogMapper">
+
     <!-- 목록 -->
     <select id="selectMyLogs" resultType="hlog">
         SELECT
-        h.HNO                           AS hno
-        , h.MNO                           AS mno
-        , TO_CHAR(h.HDATE,'YYYY.MM.DD')   AS hdateStr
+        h.HNO                             AS hno
+        , h.MNO                             AS mno
+        , TO_CHAR(h.HDATE,'YYYY.MM.DD')     AS hdateStr
         , NVL(TO_CHAR(h.SLEEPTIME,'HH24:MI'), '00:00') AS sleeptimeStr
-        , h.HWEIGHT                       AS hweight
-        , h.HWEIGHT                       AS weight
-        , h.WATERAMOUNT                   AS wateramount
-        , h.EXERCISE                      AS exercise
-        , h.FOOD                          AS food
-        , TO_CHAR(h.HDATE,'YYYY-MM-DD')   AS hdate
-        <!-- 0903 수정폼에서 정확한 날짜 초기화를 위한 ISO 날짜 추가 - 끝 -->
+        , h.HWEIGHT                         AS hweight
+        , h.HWEIGHT                         AS weight
+        , h.WATERAMOUNT                     AS wateramount
+        , h.EXERCISE                        AS exercise
+        , h.FOOD                            AS food
+        , TO_CHAR(h.HDATE,'YYYY-MM-DD')     AS hdate
         FROM Health_Daily_Log h
         JOIN member m ON m.mno = h.mno
         WHERE h.MNO = #{mno}
@@ -42,20 +42,12 @@
         #{hno},
         #{mno},
         TO_DATE(#{hdate}, 'YYYY-MM-DD'),
-        <!-- 0903 수면시간 안전 저장(시분 패딩 후 결합) - 시작 -->
         CASE
-        WHEN #{sleeptime} IS NOT NULL AND #{sleeptime} != '' THEN
-        TO_DATE(
-        #{hdate} || ' ' ||
-        LPAD(SUBSTR(#{sleeptime},1,INSTR(#{sleeptime},':')-1), 2, '0')
-        || ':' ||
-        LPAD(SUBSTR(#{sleeptime},INSTR(#{sleeptime},':')+1), 2, '0'),
-        'YYYY-MM-DD HH24:MI'
-        )
+        WHEN #{sleeptime} IS NOT NULL THEN
+        TO_DATE( #{hdate} || ' ' || #{sleeptime}, 'YYYY-MM-DD HH24:MI' )
         ELSE
-        TO_DATE(#{hdate} || ' 00:00', 'YYYY-MM-DD HH24:MI')
+        TO_DATE( #{hdate} || ' 00:00', 'YYYY-MM-DD HH24:MI' )
         END,
-        <!-- 0903 수면시간 안전 저장(시분 패딩 후 결합) - 끝 -->
         NVL(#{hweight}, 0),
         NVL(#{wateramount}, 0),
         NVL(#{exercise}, '-'),
@@ -67,27 +59,24 @@
     <update id="updateHealthDailyLog" parameterType="hlog">
         UPDATE Health_Daily_Log
         SET
-        HDATE = CASE WHEN #{hdate} IS NOT NULL AND #{hdate} != ''
+        HDATE = CASE
+        WHEN #{hdate} IS NOT NULL AND #{hdate} != ''
         THEN TO_DATE(#{hdate}, 'YYYY-MM-DD')
-        ELSE HDATE END,
-        <!-- 0903 수면시간 안전 갱신(시분 패딩 후 결합) - 시작 -->
+        ELSE HDATE
+        END,
         SLEEPTIME = CASE
-        WHEN #{sleeptime} IS NOT NULL AND #{sleeptime} != '' THEN
+        WHEN #{sleeptime} IS NOT NULL THEN
         TO_DATE(
         (CASE
         WHEN #{hdate} IS NOT NULL AND #{hdate} != ''
         THEN #{hdate}
         ELSE TO_CHAR(SLEEPTIME,'YYYY-MM-DD')
-        END) || ' ' ||
-        LPAD(SUBSTR(#{sleeptime},1,INSTR(#{sleeptime},':')-1), 2, '0')
-        || ':' ||
-        LPAD(SUBSTR(#{sleeptime},INSTR(#{sleeptime},':')+1), 2, '0'),
+        END) || ' ' || #{sleeptime},
         'YYYY-MM-DD HH24:MI'
         )
         ELSE SLEEPTIME
         END,
-        <!-- 0903 수면시간 안전 갱신(시분 패딩 후 결합) - 끝 -->
-        HWEIGHT = NVL(#{hweight}, HWEIGHT),
+        HWEIGHT     = NVL(#{hweight}, HWEIGHT),
         WATERAMOUNT = NVL(#{wateramount}, WATERAMOUNT),
         EXERCISE    = NVL(#{exercise}, EXERCISE),
         FOOD        = NVL(#{food}, FOOD)
@@ -121,4 +110,5 @@
         ORDER BY HDATE DESC, HNO DESC
         FETCH FIRST 1 ROWS ONLY
     </select>
+
 </mapper>
