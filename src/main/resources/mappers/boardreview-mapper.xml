@@ -6,32 +6,41 @@
 <mapper namespace="com.vitalog.spring_diet.mapper.BoardReviewMapper">
     <resultMap id="BoardReviewMap" type="boardReview">
         <id property="brno" column="BRNO"/>
-        <result property="mno" column="MNO"/>
-        <result property="brtitle" column="BRTITLE"/>
-        <result property="brcontent" column="brcontent"/>
-        <result property="brwrite_date" column="brwrite_date"/>
-        <result property="brwrite_update" column="brwrite_update"/>
-        <result property="brhitcount" column="brhitcount"/>
-        <result property="brdanger" column="brdanger"/>
+        <result column="MNO" property="mno" />
+        <result column="BRTITLE" property="brtitle" />
+        <result column="brcontent" property="brcontent" />
+        <result column="brwrite_date" property="brwrite_date" />
+        <result column="brwrite_update" property="brwrite_update" />
+        <result column="brviewcount" property="brviewcount" />
+        <result column="brdanger" property="brdanger" />
+        <result column="mname" property="mname" />
+        <result column="awesomeCount" property="awesomeCount" />
     </resultMap>
 
-    <select id="selectReviewList" parameterType="PagingVo" resultMap="BoardReviewMap">
-        SELECT *
-        FROM (
-        SELECT ROWNUM AS rnum, b.*
-        FROM (
-        SELECT brno, brtitle, brwrite_date, brhitcount, brdanger
-        FROM board_review
-        <where>
-            <if test="mno != null and mno > 0">
-                mno = #{mno}
-            </if>
-        </where>
-        ORDER BY brno DESC
-        ) b
-        WHERE ROWNUM &lt;= #{end}
-        )
-        WHERE rnum &gt;= #{start}
+<!--    <select id="selectReviewList" parameterType="PagingVo" resultMap="BoardReviewMap"> 페이징x-->
+<!--        SELECT *-->
+<!--        FROM (-->
+<!--        SELECT ROWNUM AS rnum, b.*-->
+<!--        FROM (-->
+<!--        SELECT brno, brtitle, brwrite_date, brviewcount, brdanger-->
+<!--        FROM boardreview-->
+<!--        <where>-->
+<!--            <if test="mno != null and mno > 0">-->
+<!--                mno = #{mno}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        ORDER BY brno DESC-->
+<!--        ) b-->
+<!--        WHERE ROWNUM &lt;= #{end}-->
+<!--        )-->
+<!--        WHERE rnum &gt;= #{start}-->
+<!--    </select>    -->
+    <select id="selectReviewList" resultMap="BoardReviewMap">
+        SELECT
+        br.brno, br.brtitle, m.mname, br.brwrite_date, br.brviewcount,  br.brcontent, br.brwrite_update, br.brdanger
+        FROM boardreview br
+        JOIN member m ON br.mno = m.mno
+        ORDER BY br.brno DESC
     </select>
 <!--    <resultMap id="BoardReviewMap" type="boardReview">-->
 <!--        <id property="brno" column="brno"/>-->
@@ -62,27 +71,36 @@
 <!--        WHERE rnum &gt;= #{start}-->
 <!--    </select>-->
 
-<!--    <select id="selectReviewTotalCount" resultType="int">-->
-<!--        SELECT COUNT(*) FROM board_review-->
-<!--    </select>-->
+    <select id="selectReviewTotalCount" resultType="int">
+        SELECT COUNT(*) FROM boardreview
+    </select>
 
-<!--    <select id="selectMyReviewTotalCount" parameterType="long" resultType="int">-->
-<!--        SELECT COUNT(*) FROM board_review WHERE mno = #{mno}-->
-<!--    </select>-->
+    <select id="selectMyReviewTotalCount" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM boardreview WHERE mno = #{mno}
+    </select>
 
 <!--    <select id="selectReview" parameterType="int" resultMap="BoardReviewMap">-->
 <!--        SELECT *-->
-<!--        FROM board_review-->
+<!--        FROM boardreview-->
 <!--        WHERE brno = #{brno}-->
 <!--    </select>-->
+    <select id="selectReview" parameterType="int" resultMap="BoardReviewMap">
+        SELECT
+        br.*,
+        m.mname,  (SELECT COUNT(*) FROM BRAwesome WHERE brno = br.brno) AS awesomeCount
+        FROM boardreview br
+        JOIN member m ON br.mno = m.mno
+        WHERE br.brno = #{brno}
+    </select>
 
-<!--    <insert id="insertReview" parameterType="BoardReviewDTO">-->
-<!--        <selectKey keyProperty="brno" resultType="int" order="BEFORE">-->
-<!--            SELECT BOARD_REVIEW_SEQ.NEXTVAL FROM DUAL-->
-<!--        </selectKey>-->
-<!--        INSERT INTO board_review (brno, brtitle, brcontent, mno, brwrite_date, brhitcount, brdanger)-->
-<!--        VALUES (#{brno}, #{brtitle}, #{brcontent}, #{mno}, SYSDATE, 0, 0)-->
-<!--    </insert>-->
+    <insert id="insertReview" parameterType="boardReview">
+        <selectKey keyProperty="brno" resultType="int" order="BEFORE">
+            SELECT BOARD_REVIEW_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO board_review (brno, brtitle, brcontent, mno, brwrite_date, brdanger, brviewcount )
+        VALUES (#{brno}, #{brtitle}, #{brcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0)
+    </insert>
+
 
 <!--    <update id="updateReview" parameterType="board">-->
 <!--        UPDATE board_review-->
@@ -97,7 +115,7 @@
 <!--    </delete>-->
 
 <!--    <update id="updateHitCount" parameterType="int">-->
-<!--        UPDATE board_review SET brhitcount = brhitcount + 1 WHERE brno = #{brno}-->
+<!--        UPDATE board_review SET brviewcount = brviewcount + 1 WHERE brno = #{brno}-->
 <!--    </update>-->
 
 <!--    <update id="updateDanger" parameterType="int">-->

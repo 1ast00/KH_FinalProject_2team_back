@@ -16,5 +16,6 @@ public class BoardMealsDTO {
     private Date bmwrite_date;
     private Date bmwrite_update;
     private int bmdanger;
-    private int bmhitcount;
+    private int bmviewcount;
+    private String mname;
 }
