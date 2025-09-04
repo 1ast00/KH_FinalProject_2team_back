@@ -15,9 +15,7 @@
         , h.WATERAMOUNT                   AS wateramount
         , h.EXERCISE                      AS exercise
         , h.FOOD                          AS food
-        <!-- 0903 수정폼에서 정확한 날짜 초기화를 위한 ISO 날짜 추가 - 시작 -->
         , TO_CHAR(h.HDATE,'YYYY-MM-DD')   AS hdate
-        <!-- 0903 수정폼에서 정확한 날짜 초기화를 위한 ISO 날짜 추가 - 끝 -->
         FROM Health_Daily_Log h
         JOIN member m ON m.mno = h.mno
         WHERE h.MNO = #{mno}
@@ -43,7 +41,6 @@
         #{hno},
         #{mno},
         TO_DATE(#{hdate}, 'YYYY-MM-DD'),
-        <!-- 0903 수면시간 안전 저장(시분 패딩 후 결합) - 시작 -->
         CASE
         WHEN #{sleeptime} IS NOT NULL AND #{sleeptime} != '' THEN
         TO_DATE(
@@ -56,7 +53,6 @@
         ELSE
         TO_DATE(#{hdate} || ' 00:00', 'YYYY-MM-DD HH24:MI')
         END,
-        <!-- 0903 수면시간 안전 저장(시분 패딩 후 결합) - 끝 -->
         NVL(#{hweight}, 0),
         NVL(#{wateramount}, 0),
         NVL(#{exercise}, '-'),
@@ -71,7 +67,6 @@
         HDATE = CASE WHEN #{hdate} IS NOT NULL AND #{hdate} != ''
         THEN TO_DATE(#{hdate}, 'YYYY-MM-DD')
         ELSE HDATE END,
-        <!-- 0903 수면시간 안전 갱신(시분 패딩 후 결합) - 시작 -->
         SLEEPTIME = CASE
         WHEN #{sleeptime} IS NOT NULL AND #{sleeptime} != '' THEN
         TO_DATE(
@@ -87,7 +82,6 @@
         )
         ELSE SLEEPTIME
         END,
-        <!-- 0903 수면시간 안전 갱신(시분 패딩 후 결합) - 끝 -->
         HWEIGHT = NVL(#{hweight}, HWEIGHT),
         WATERAMOUNT = NVL(#{wateramount}, WATERAMOUNT),
         EXERCISE    = NVL(#{exercise}, EXERCISE),

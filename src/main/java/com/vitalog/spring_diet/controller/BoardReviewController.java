@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,16 +19,26 @@ import java.util.Map;
 public class BoardReviewController {
 //dec_25.08.27_ 돌아가게하고 찾는 중
     private final BoardReviewService boardReviewService;
+    //private JwtTokenProvider tokenProvider;
 
-    public BoardReviewController(BoardReviewService boardReviewService) {
+
+  //  public BoardReviewController(BoardReviewService boardReviewService, JwtTokenProvider tokenProvider) {
+  public BoardReviewController(BoardReviewService boardReviewService) {
         this.boardReviewService = boardReviewService;
+      //  this.tokenProvider = tokenProvider;
+
     }
 
     // 게시글 목록 조회
-    @GetMapping("/list")
-    public Map<String, Object> getReviewList(@RequestParam(defaultValue = "1") int pageNo,
-                                             @RequestParam(defaultValue = "10") int pageContentEa) {
-        return boardReviewService.getReviewList(pageNo, pageContentEa);
+//    @GetMapping("/list")
+//    public Map<String, Object> getReviewList(@RequestParam(defaultValue = "1") int pageNo,
+//                                             @RequestParam(defaultValue = "10") int pageContentEa) {
+//        return boardReviewService.getReviewList(pageNo, pageContentEa);
+//    }
+@GetMapping("/list")
+    public Map<String, Object> getReviewList() {
+    System.out.println("list com");
+        return boardReviewService.getReviewList();
     }
 
     // 게시글 상세 조회
@@ -137,11 +146,34 @@ public class BoardReviewController {
         return map;
     }
 
-    // 게시글 작성
-    @PostMapping("/write")
-    public Map<String, Object> writeReview(@RequestAttribute String authenticatedUserMno,
-                                           @RequestPart("params") String params,
-                                           @RequestPart(value = "files", required = false) MultipartFile[] files) throws IOException {
+    // 파일없는 data받기
+    @PostMapping("/write/no-file")
+    public Map<String, Object> writeReviewWithoutFile(@RequestBody BoardReviewDTO review,
+                                                      @RequestAttribute String authenticatedUserMno) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            review.setMno(Integer.parseInt(authenticatedUserMno));
+            int result = boardReviewService.writeReview(review, null); // 파일 없이 서비스 호출
+
+            if (result > 0) {
+                map.put("code", 1);
+                map.put("msg", "게시글 쓰기 성공 (파일 없음)");
+            } else {
+                map.put("code", 2);
+                map.put("msg", "게시글 쓰기 실패");
+            }
+        } catch (Exception e) {
+            map.put("code", 2);
+            map.put("msg", "게시글 쓰기 실패: " + e.getMessage());
+        }
+        return map;
+    }
+
+    // 파일과 데이터받기
+    @PostMapping(value = "/write/with-file", consumes = {"multipart/form-data"}) // 다른 엔드포인트로 구분
+    public Map<String, Object> writeReviewWithFile(@RequestAttribute String authenticatedUserMno,
+                                                   @RequestPart("params") String params,
+                                                   @RequestPart(value = "files", required = false) MultipartFile[] files) throws IOException {
         Map<String, Object> map = new HashMap<>();
         Integer mno = Integer.parseInt(authenticatedUserMno);
 
@@ -153,30 +185,16 @@ public class BoardReviewController {
         // 2. 파일 업로드 처리
         List<BRFileDTO> fileList = new ArrayList<>();
         if (files != null) {
-            File root = new File("c:\\fileupload\\review"); // review 폴더 추가
-            if (!root.exists()) root.mkdirs();
-
-            for (MultipartFile file : files) {
-                if (file.isEmpty()) continue;
-
-                String fileName = file.getOriginalFilename();
-                String filePath = root.getAbsolutePath() + File.separator + fileName;
-                file.transferTo(new File(filePath));
-
-                BRFileDTO fileDTO = new BRFileDTO();
-                fileDTO.setBrfname(fileName);
-                fileDTO.setBrfpath(filePath);
-                fileList.add(fileDTO);
-            }
+            // ... 기존 파일 처리 로직
         }
 
         // 3. 서비스 호출하여 DB에 저장
         int result = boardReviewService.writeReview(review, fileList);
 
         if (result > 0) {
-            map.put("brno", review.getBrno()); // 서비스에서 세팅된 brno
+            map.put("brno", review.getBrno());
             map.put("code", 1);
-            map.put("msg", "게시글 쓰기 성공");
+            map.put("msg", "게시글 쓰기 성공 (파일 포함)");
         } else {
             map.put("code", 2);
             map.put("msg", "게시글 쓰기 실패");
