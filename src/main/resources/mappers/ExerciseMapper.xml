@@ -7,20 +7,23 @@
 
     <resultMap id="exerciseResultMap" type="com.vitalog.spring_diet.dto.ExerciseDTO">
         <result property="exerciseName" column="EXERCISE_NAME"/>
-        <result property="energyConsumption" column="ERNERGY_PER_KG"/>
+        <result property="energyConsumption" column="ENERGY_PER_KG"/>
     </resultMap>
 
-    <select id="selectRecommendedExercises" resultMap="exerciseResultMap">
+    <select id="selectRecommendedExercises" resultMap="exerciseResultMap" parameterType="String">
         SELECT
         EXERCISE_NAME,
-        ERNERGY_PER_KG
+        ENERGY_PER_KG
         FROM (
         SELECT
         EXERCISE_NAME,
-        ERNERGY_PER_KG
+        ENERGY_PER_KG
         FROM
         EXERCISE_REFERENCE
-        ORDER BY
+        WHERE
+        -- exerciseType이 '실내/실외'인 경우엔 항상 포함,
+        -- 그 외엔 파라미터와 타입이 일치하는 경우만 포함
+        EXERCISE_TYPE = '실내/실외' OR EXERCISE_TYPE = #{exerciseType, jdbcType=VARCHAR} ORDER BY
         ORA_HASH(EXERCISE_NAME || TO_CHAR(SYSDATE, 'YYYYMMDD'))
         )
         WHERE ROWNUM &lt;= 5
