@@ -59,9 +59,6 @@ public class FoodController {
     public ResponseEntity<FoodNutritionResponseDTO<List<FoodNutritionDTO>>> getFoodApiTotalResult(@RequestParam String searchTxt,
                                                                                              @RequestParam(defaultValue = "1") int page ){
 
-        System.out.println("searchTxt in getFoodApiTotalResult: "+searchTxt);
-        System.out.println("page in getFoodApiTotalResult: "+page);
-
         //데이터를 Api와 DB에서 받는 메소드
         //DB의 데이터가 api의 데이터에 대해 항상 우선순위를 가짐
 

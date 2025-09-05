@@ -112,7 +112,7 @@ public class FoodService {
         }
     }
 
-    //전체 api 데이터 목록 다 받아오는 메소드
+    //전체 api 데이터 목록 다 받아오는 메소드: 캐러셀을 만들기 위해 사용
     public List<FoodNutritionDTO> foodCarouselSearch(String searchTxt, int page) {
 
 //        System.out.println("searchTxt in Controller: "+ searchTxt);
@@ -134,7 +134,9 @@ public class FoodService {
             throw new RuntimeException(e);
         }
 
-        apiURL += "&prdlstNm=" + prdlstNm;
+        if(prdlstNm != "") {
+            apiURL += "&prdlstNm=" + prdlstNm;
+        }
 
         //2. URL Verification setting
 
@@ -185,7 +187,7 @@ public class FoodService {
     //String -> JSON -> list로 parsing(Jackson 이용)
     private List<FoodNutritionDTO> parseJsonToList(String json){
 
-        System.out.println("String json: "+json);
+//        System.out.println("String json: "+json);
 
         //빈 리스트를 유사시 반환하기 위해 초기화와 함께 선언
         List<FoodNutritionDTO> resultList = new ArrayList<>();
@@ -194,25 +196,25 @@ public class FoodService {
             ObjectMapper mapper = new ObjectMapper();
 
             Map<String,Object> map = mapper.readValue(json, Map.class);
-            System.out.println("Map: "+ map);
+//            System.out.println("Map: "+ map);
 
             Map<String,Object> body = (Map<String, Object>) map.get("body");
-            System.out.println("body: "+body);
+//            System.out.println("body: "+body);
             Integer totalCount = Integer.parseInt((String) body.get("totalCount"));
-            System.out.println("totalCount: "+totalCount);
+//            System.out.println("totalCount: "+totalCount);
 
             //body가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌: null safe
             if(body == null) return resultList;
 
             List<Map<String,Object>> foodList = (List<Map<String,Object>>) body.get("items");
-            System.out.println("foodList: "+foodList);
+//            System.out.println("foodList: "+foodList);
             //foodList가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌: null safe
             if(foodList == null) return resultList;
 
             for (Map<String,Object> items : foodList) {
                 Map<String,Object> item = (Map<String, Object>) items.get("item");
                 if(item == null) continue;
-                System.out.println("item: "+item);
+//                System.out.println("item: "+item);
 
                 FoodNutritionDTO foodDTO = new FoodNutritionDTO();
                 //주키:null safe
@@ -255,7 +257,7 @@ public class FoodService {
                 resultList.add(foodDTO);
             }
 
-            System.out.println("resultList: "+ resultList);
+//            System.out.println("resultList: "+ resultList);
 
             return resultList;
         } catch (JsonMappingException e) {
@@ -276,7 +278,7 @@ public class FoodService {
                     .parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
             NodeList items = doc.getElementsByTagName("item");
-            System.out.println("items: "+items);
+//            System.out.println("items: "+items);
 
             for(int i = 0; i < items.getLength(); i++){
                 Element e = (Element) items.item(i);
