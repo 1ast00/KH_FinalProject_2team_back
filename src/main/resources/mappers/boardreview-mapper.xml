@@ -79,26 +79,18 @@
         SELECT COUNT(*) FROM boardreview WHERE mno = #{mno}
     </select>
 
-<!--    <select id="selectReview" parameterType="int" resultMap="BoardReviewMap">-->
-<!--        SELECT *-->
-<!--        FROM boardreview-->
-<!--        WHERE brno = #{brno}-->
-<!--    </select>-->
-    <select id="selectReview" parameterType="int" resultMap="BoardReviewMap">
+    <select id="selectReview" resultMap="BoardReviewMap">
         SELECT
         br.*,
-        m.mname,  (SELECT COUNT(*) FROM BRAwesome WHERE brno = br.brno) AS awesomeCount
+        m.nickname, (SELECT COUNT(*) FROM BRAwesome WHERE brno = br.brno) AS awesomeCount
         FROM boardreview br
         JOIN member m ON br.mno = m.mno
         WHERE br.brno = #{brno}
     </select>
 
     <insert id="insertReview" parameterType="boardReview">
-        <selectKey keyProperty="brno" resultType="int" order="BEFORE">
-            SELECT BOARD_REVIEW_SEQ.NEXTVAL FROM DUAL
-        </selectKey>
-        INSERT INTO board_review (brno, brtitle, brcontent, mno, brwrite_date, brdanger, brviewcount )
-        VALUES (#{brno}, #{brtitle}, #{brcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0)
+        INSERT INTO board_review (brtitle, brcontent, mno, brwrite_date, brdanger, brviewcount )
+        VALUES (#{brtitle}, #{brcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0)
     </insert>
 
     <update id="updateViewCount" parameterType="int">
@@ -160,13 +152,13 @@
 <!--        DELETE FROM br_file WHERE brfno = #{brfno}-->
 <!--    </delete>-->
 
-<!--    <insert id="insertReviewAwesome" parameterType="map">-->
-<!--        INSERT INTO BRAwesome (brno, mno) VALUES (#{brno}, #{mno})-->
-<!--    </insert>-->
+    <insert id="insertReviewAwesome" parameterType="map">
+        INSERT INTO BRAwesome (brno, mno) VALUES (#{brno}, #{mno})
+    </insert>
 
-<!--    <delete id="deleteReviewAwesome" parameterType="map">-->
-<!--        DELETE FROM BRAwesome WHERE brno = #{brno} AND mno = #{mno}-->
-<!--    </delete>-->
+    <delete id="deleteReviewAwesome" parameterType="map">
+        DELETE FROM BRAwesome WHERE brno = #{brno} AND mno = #{mno}
+    </delete>
 
     <select id="selectReviewAwesomeCount" resultType="int">
         SELECT COUNT(*) FROM BRAwesome WHERE brno = #{brno}
@@ -176,9 +168,9 @@
         SELECT mno FROM BRAwesome WHERE brno = #{brno}
     </select>
 
-<!--    <select id="checkReviewAwesome" parameterType="map" resultType="int">-->
-<!--        SELECT COUNT(*) FROM BRAwesome WHERE brno = #{brno} AND mno = #{mno}-->
-<!--    </select>-->
+    <select id="checkReviewAwesome" resultType="int">
+        SELECT COUNT(*) FROM BRAwesome WHERE brno = #{brno} AND mno = #{mno}
+    </select>
 
 <!--    <insert id="insertCommentAwesome" parameterType="map">-->
 <!--        INSERT INTO BRCommentawesome (cno, mno) VALUES (#{cno}, #{mno})-->

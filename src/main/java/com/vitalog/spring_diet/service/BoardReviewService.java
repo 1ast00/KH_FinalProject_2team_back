@@ -9,17 +9,17 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.File;
 
 @Service
 @RequiredArgsConstructor
 public class BoardReviewService {
 
     private final BoardReviewMapper boardReviewMapper;
-// dec+25.08.29수정
+// dec+25.08.29 - 25.09.04 계속수정
 
     //전체 게시글 목록 조회 -페이징 포함 되던거.
 //    public Map<String, Object> getReviewList(int pageNo, int pageContentEa) {
@@ -90,15 +90,18 @@ public class BoardReviewService {
     }
 
     //게시글 좋아요 토글
-    public void toggleReviewAwesome(int brno, long mno) {
+    public String toggleReviewAwesome(int brno, long mno) {
         Map<String, Object> map = new HashMap<>();
         map.put("brno", brno);
         map.put("mno", mno);
 
+        // 좋아요 기록 확인
         if (boardReviewMapper.checkReviewAwesome(map) > 0) {
             boardReviewMapper.deleteReviewAwesome(map);
+            return "deleted";
         } else {
-            boardReviewMapper.insertReviewAwesome(map);
+           boardReviewMapper.insertReviewAwesome(map);
+           return "added";
         }
     }
 
@@ -129,6 +132,12 @@ public class BoardReviewService {
             }
         }
         return result;
+    }
+
+
+    // 파일 정보를 DB에 저장하는 메서드
+    public void saveFile(BRFileDTO brFileDTO) {
+        boardReviewMapper.insertBRFile(brFileDTO);
     }
 
     //게시글삭제

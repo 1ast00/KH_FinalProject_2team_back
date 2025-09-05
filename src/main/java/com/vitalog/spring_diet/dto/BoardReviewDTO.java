@@ -2,7 +2,9 @@ package com.vitalog.spring_diet.dto;
 
 import lombok.Data;
 import org.apache.ibatis.type.Alias;
+
 import java.sql.Date;
+
 
 @Data
 @Alias("boardReview")
@@ -25,4 +27,5 @@ public class BoardReviewDTO {
     public void setAwesomeCount(int awesomeCount) {
         this.awesomeCount = awesomeCount;
     }
+
 }
