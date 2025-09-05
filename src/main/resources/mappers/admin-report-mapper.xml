@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitalog.spring_diet.mapper.AdminReportMapper">
+
+    <select id="selectReportsPage"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReportListItemDTO">
+        SELECT
+        ar.report_id       AS reportId,
+        ar.target_type     AS targetType,
+        ar.target_id       AS targetId,
+        CAST(NULL AS VARCHAR2(200)) AS titleSnapshot,
+        ar.reporter_mno    AS reporterMno,
+        CAST(NULL AS VARCHAR2(16))  AS createdAt,
+        ar.status          AS status,
+        CAST(NULL AS NUMBER)       AS resolvedBy,
+        CAST(NULL AS VARCHAR2(16)) AS resolvedAt
+        FROM AdminReport ar
+        <where>
+            <if test="status != null and status != '' and status != 'ALL'">
+                ar.status = #{status}
+            </if>
+            <if test="type != null and type != '' and type != 'ALL'">
+                AND ar.target_type = #{type}
+            </if>
+            <if test="q != null and q != ''">
+                AND (
+                (REGEXP_LIKE(#{q}, '^[0-9]+$') AND ar.target_id = TO_NUMBER(#{q}))
+                OR (LOWER(ar.target_type) LIKE LOWER('%' || #{q} || '%'))
+                )
+            </if>
+        </where>
+        ORDER BY ar.report_id DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{size} ROWS ONLY
+    </select>
+
+    <select id="countReportsPage" resultType="int">
+        SELECT COUNT(*)
+        FROM AdminReport ar
+        <where>
+            <if test="status != null and status != '' and status != 'ALL'">
+                ar.status = #{status}
+            </if>
+            <if test="type != null and type != '' and type != 'ALL'">
+                AND ar.target_type = #{type}
+            </if>
+            <if test="q != null and q != ''">
+                AND (
+                (REGEXP_LIKE(#{q}, '^[0-9]+$') AND ar.target_id = TO_NUMBER(#{q}))
+                OR (LOWER(ar.target_type) LIKE LOWER('%' || #{q} || '%'))
+                )
+            </if>
+        </where>
+    </select>
+
+    <update id="updateReportStatus">
+        UPDATE AdminReport
+        SET status = #{status}
+        WHERE report_id = #{reportId}
+    </update>
+
+    <insert id="insertReport">
+        INSERT INTO AdminReport (report_id, target_type, target_id, reporter_mno, status)
+        VALUES (#{reportId}, #{targetType}, #{targetId}, #{reporterMno}, #{status})
+    </insert>
+
+</mapper>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitalog.spring_diet.mapper.AdminMealsMapper">
+
+    <!-- 목록: 검색(q) + 상태(status) + 페이징(offset,size) -->
+    <select id="selectMealsPage"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminMealsListItemDTO">
+        SELECT
+        bm.bmno                              AS bmno,
+        bm.mno                               AS mno,
+        bm.bmtitle                           AS title,
+        NVL(m.nickname, m.userid)            AS writer,
+        TO_CHAR(bm.bmwritedate,'YYYY-MM-DD') AS writeDate,
+        CASE WHEN bm.bmstatus = 1 THEN '게시' ELSE '숨김' END AS visible
+        FROM BoardMeals bm
+        JOIN member m ON m.mno = bm.mno
+        <where>
+            <if test="q != null and q != ''">
+                (LOWER(bm.bmtitle) LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.nickname) LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.userid)   LIKE LOWER('%' || #{q} || '%'))
+            </if>
+
+            <!-- status: ALL(전체), POSTED(1), HIDDEN(0), 또는 '0'/'1' 문자열 -->
+            <if test="status != null and status != '' and status != 'ALL'">
+                AND bm.bmstatus =
+                <choose>
+                    <when test="status == 'POSTED'">1</when>
+                    <when test="status == 'HIDDEN'">0</when>
+                    <otherwise>#{status}</otherwise>
+                </choose>
+            </if>
+        </where>
+        ORDER BY bm.bmno DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{size} ROWS ONLY
+    </select>
+
+    <!-- 총 개수(동일 조건) -->
+    <select id="countMealsPage" resultType="int">
+        SELECT COUNT(*)
+        FROM BoardMeals bm
+        JOIN member m ON m.mno = bm.mno
+        <where>
+            <if test="q != null and q != ''">
+                (LOWER(bm.bmtitle) LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.nickname) LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.userid)   LIKE LOWER('%' || #{q} || '%'))
+            </if>
+
+            <if test="status != null and status != '' and status != 'ALL'">
+                AND bm.bmstatus =
+                <choose>
+                    <when test="status == 'POSTED'">1</when>
+                    <when test="status == 'HIDDEN'">0</when>
+                    <otherwise>#{status}</otherwise>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <!-- 글 번호로 작성자 mno 찾기 -->
+    <select id="selectAuthorMnoByBmno" parameterType="long" resultType="long">
+        SELECT mno
+        FROM BoardMeals
+        WHERE bmno = #{bmno}
+    </select>
+
+    <!-- 작성자 기본/카운트 정보 (Map으로 수신) -->
+    <select id="selectAuthorInfo" parameterType="long" resultType="map">
+        SELECT
+        m.mno                                   AS MNO,
+        m.userid                                AS USERID,
+        NVL(m.nickname, m.userid)               AS NICKNAME,
+        /* 작성 글 수 */
+        (SELECT COUNT(*) FROM BoardMeals bm WHERE bm.mno = m.mno) AS POSTCOUNT,
+        /* 게시글 신고 수 */
+        (SELECT COUNT(*)
+        FROM AdminReport ar
+        WHERE ar.target_type IN ('MEAL_POST','REVIEW_POST')
+        AND ar.target_id IN (
+        SELECT bm2.bmno FROM BoardMeals bm2 WHERE bm2.mno = m.mno
+        UNION ALL
+        SELECT br2.brno FROM BoardReview br2 WHERE br2.mno = m.mno
+        )
+        ) AS TOTALPOSTREPORTS,
+        /* 댓글 신고 수 (댓글 테이블/컬럼명 맞게 필요시 수정) */
+        (SELECT COUNT(*)
+        FROM AdminReport ar
+        WHERE ar.target_type IN ('MEAL_COMMENT','REVIEW_COMMENT')
+        AND ar.target_id IN (
+        SELECT bmc.bmcno FROM BoardMealsComment bmc WHERE bmc.mno = m.mno
+        UNION ALL
+        SELECT rc.cno    FROM ReviewComment rc    WHERE rc.mno = m.mno
+        )
+        ) AS TOTALCOMMENTREPORTS
+        FROM member m
+        WHERE m.mno = #{mno}
+    </select>
+
+    <!-- 작성자의 최근 식단 글 -->
+    <select id="selectAuthorPosts"
+            parameterType="long"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AuthorActivityDTO$PostBrief">
+        SELECT
+        bm.bmno                              AS id,
+        bm.bmtitle                           AS title,
+        TO_CHAR(bm.bmwritedate,'YYYY-MM-DD') AS "date"
+        FROM BoardMeals bm
+        WHERE bm.mno = #{mno}
+        ORDER BY bm.bmno DESC
+    </select>
+
+    <!-- 작성자가 자기 글에 단 최근 댓글 -->
+    <select id="selectSelfCommentsOnOwnPosts"
+            parameterType="long"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AuthorActivityDTO$SelfCommentBrief">
+        SELECT
+        bmc.bmcno                            AS id,
+        bmc.content                          AS content,
+        TO_CHAR(bmc.write_date,'YYYY-MM-DD') AS "date"
+        FROM BoardMealsComment bmc
+        JOIN BoardMeals bm ON bm.bmno = bmc.bmno
+        WHERE bm.mno = #{mno}
+        AND bmc.mno = #{mno}
+        ORDER BY bmc.bmcno DESC
+    </select>
+
+    <!-- 상태 토글 -->
+    <update id="updateMealStatus">
+        UPDATE BoardMeals
+        SET bmstatus = #{status}
+        WHERE bmno = #{bmno}
+    </update>
+
+</mapper>
