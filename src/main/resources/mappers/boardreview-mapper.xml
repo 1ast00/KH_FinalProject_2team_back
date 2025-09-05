@@ -89,8 +89,11 @@
     </select>
 
     <insert id="insertReview" parameterType="boardReview">
-        INSERT INTO board_review (brtitle, brcontent, mno, brwrite_date, brdanger, brviewcount )
-        VALUES (#{brtitle}, #{brcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0)
+        <selectKey keyProperty="brno" resultType="int" order="BEFORE">
+            SELECT BOARDREVIEW_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO boardreview (brno, brtitle, brcontent, mno, brwrite_date, brdanger, brviewcount, brstatus )
+        VALUES (#{brno}, #{brtitle}, #{brcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0, 0)
     </insert>
 
     <update id="updateViewCount" parameterType="int">
@@ -116,7 +119,7 @@
 <!--    </update>-->
 
 <!--    <update id="updateDanger" parameterType="int">-->
-<!--        UPDATE board_review SET brdanger = brdanger + 1 WHERE brno = #{brno}-->
+<!--        UPDATE boardreview SET brdanger = brdanger + 1 WHERE brno = #{brno}-->
 <!--    </update>-->
 
 <!--    <select id="selectCommentList" parameterType="int" resultType="BRComment">-->

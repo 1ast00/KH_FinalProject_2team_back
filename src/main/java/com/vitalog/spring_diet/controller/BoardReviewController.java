@@ -152,12 +152,16 @@ public class BoardReviewController {
                                                       @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
         Map<String, Object> map = new HashMap<>();
         try {
-            review.setMno(Integer.parseInt(authenticatedUserMno));
+
+            // review.setMno(Integer.parseInt(authenticatedUserMno));  25.09.05
+            int mno = Integer.parseInt(authenticatedUserMno);
+            review.setMno(mno);
+
             int result = boardReviewService.writeReview(review, null); // 파일 없이 서비스 호출
 
             if (result > 0) {
                 map.put("code", 1);
-                map.put("msg", "게시글 쓰기 성공 (파일 없음)");
+                map.put("msg", "게시글 쓰기 성공");
             } else {
                 map.put("code", 2);
                 map.put("msg", "게시글 쓰기 실패");
@@ -165,10 +169,12 @@ public class BoardReviewController {
         } catch (Exception e) {
             map.put("code", 2);
             map.put("msg", "게시글 쓰기 실패: " + e.getMessage());
+            e.printStackTrace();
         }
         return map;
     }
 
+    //이미지업로드인데 안해봄.
     @PostMapping("/uploadImage")
     public Map<String, String> uploadImage(@RequestPart("file") MultipartFile file) {
         Map<String, String> map = new HashMap<>();

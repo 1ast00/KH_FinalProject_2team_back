@@ -55,24 +55,7 @@ public class BoardReviewService {
 
         return resultMap;
     }
- 
-    //게시글 상세 정보 조회 -조회수 증가 포함
-//    @Transactional
-//    public Map<String, Object> getReviewDetail(int brno) {
-//        //boardReviewMapper.updateHitCount(brno); 컬럼명 변경
-//        boardReviewMapper.updateViewCount(brno);
-//
-//        BoardReviewDTO review = boardReviewMapper.selectReview(brno);
-//        List<BRCommentDTO> commentList = boardReviewMapper.selectCommentList(brno);
-//        List<BRFileDTO> fileList = boardReviewMapper.selectFileList(brno);
-//
-//        Map<String, Object> map = new HashMap<>();
-//        map.put("review", review);
-//        map.put("commentList", commentList);
-//        map.put("fileList", fileList);
-//
-//        return map;
-//    }
+    //게시판 상세조회
     @Transactional
     public Map<String, Object> getReviewDetail(int brno) {
         boardReviewMapper.updateViewCount(brno);
@@ -104,7 +87,21 @@ public class BoardReviewService {
            return "added";
         }
     }
-
+//    //게시판 신고
+//    @PatchMapping("/danger/{brno}")
+//    public Map<String, Object> dangerReview(@PathVariable int brno) {
+//        Map<String, Object> map = new HashMap<>();
+//        try {
+//            boardReviewService.updateDanger(brno);
+//            map.put("code", 1);
+//            map.put("msg", "게시글이 신고되었습니다.");
+//        } catch (Exception e) {
+//            map.put("code", 2);
+//            map.put("msg", "신고 실패");
+//            e.printStackTrace();
+//        }
+//        return map;
+//    }
 
      //댓글 좋아요 토글
     public void toggleCommentAwesome(int cno, long mno) {
