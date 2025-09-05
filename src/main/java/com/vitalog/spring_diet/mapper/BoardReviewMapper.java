@@ -31,7 +31,7 @@ public interface BoardReviewMapper {
     int deleteReview(int brno);
     //게시글조회수 1증가
     void updateViewCount(int brno);
-    //brdanger 1 증가
+    //brdanger 1 증가 25.09.05
     int updateDanger(int brno);
 
     //BRcomment
