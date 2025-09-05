@@ -16,28 +16,22 @@ public class AdminDashboardService {
 
     private final DashboardMapper dashboardMapper;
 
-    // --- 데모용 최근 리뷰/식단 리스트 (실 DB 연동 전까지 사용) ---
+    // --- 리뷰는 여전히 데모 데이터(요청사항: 식단만 DB 연동) ---
     private final List<RecentItemDTO> recentReviews = new ArrayList<>();
-    private final List<RecentItemDTO> recentDiets   = new ArrayList<>();
 
     @PostConstruct
     void initMock() {
-        // 최근 리뷰
+        // 최근 리뷰(데모)
         recentReviews.clear();
         recentReviews.add(RecentItemDTO.builder().id(301L).title("샐러드바 솔직 후기").author("yoon").date("2025-08-19").build());
         recentReviews.add(RecentItemDTO.builder().id(302L).title("단백질 파우더 비교").author("mint").date("2025-08-20").build());
         recentReviews.sort(Comparator.comparing(RecentItemDTO::getDate).reversed());
-
-        // 최근 식단
-        recentDiets.clear();
-        recentDiets.add(RecentItemDTO.builder().id(201L).title("오늘의 다이어트 식단").author("diet_lee").date("2025-08-22").build());
-        recentDiets.add(RecentItemDTO.builder().id(202L).title("간단 레시피 공유").author("wellbeing").date("2025-08-21").build());
-        recentDiets.sort(Comparator.comparing(RecentItemDTO::getDate).reversed());
     }
 
     // 대시보드 요약 (회원수, BMI, 목표달성, 성별 분포, 역할 분포)
     public AdminDashboardDTO getSummaryOnly() {
         int totalMembers = dashboardMapper.countMembers();
+
         Double avgBmi = dashboardMapper.avgBmi();
         if (avgBmi == null) avgBmi = 0.0;
 
@@ -50,7 +44,7 @@ public class AdminDashboardService {
 
         SummaryDTO summary = SummaryDTO.builder()
                 .totalMembers(totalMembers)
-                .newThisWeek(0)       // 가입일 없으니 0 고정
+                .newThisWeek(0)       // 가입일 컬럼 미사용: 0 고정
                 .avgBMI(avgBmi)
                 .goalAchieved(goalAchieved)
                 .roles(roles)
@@ -62,13 +56,14 @@ public class AdminDashboardService {
                 .build();
     }
 
-    // 최근 리뷰
+    // 최근 리뷰 (데모)
     public List<RecentItemDTO> getRecentReviews(int limit) {
         return recentReviews.stream().limit(limit).toList();
     }
 
-    // 최근 식단
+
     public List<RecentItemDTO> getRecentDiets(int limit) {
-        return recentDiets.stream().limit(limit).toList();
+        List<RecentItemDTO> list = dashboardMapper.selectRecentMeals();
+        return list == null ? List.of() : list;
     }
 }

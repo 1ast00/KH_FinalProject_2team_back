@@ -1,3 +1,4 @@
+// src/main/java/com/vitalog/spring_diet/controller/AdminDashboardController.java
 package com.vitalog.spring_diet.controller;
 
 import com.vitalog.spring_diet.dto.admindashboard.AdminDashboardDTO;

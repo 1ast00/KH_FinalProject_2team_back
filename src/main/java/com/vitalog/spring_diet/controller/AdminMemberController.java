@@ -49,4 +49,3 @@ public class AdminMemberController {
     @Getter @NoArgsConstructor @AllArgsConstructor
     static class RoleBody { private String role; }
 }
-
