@@ -48,9 +48,11 @@ public interface BoardReviewMapper {
     void insertFile(BRFileDTO file);
     //특정파일정보삭제 - 게시글 수정시 파일삭제 사용- 파일일련번호 기준
     int deleteFile(int brfno);
-
+    // 토스트이미지훅과연계
+    void insertBRFile(BRFileDTO brFileDTO);
 
     // BoardReview Awesome
+    //좋아요추가
     //좋아요추가
     int insertReviewAwesome(Map<String, Object> map);
     //게시글좋아요 취소 - BRAwesome table에서 delete - 1 -> 0 으로 변경할곳
@@ -71,4 +73,5 @@ public interface BoardReviewMapper {
     //getcomment용
     BRCommentDTO selectComment(int brcno);
 
+    
 }

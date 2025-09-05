@@ -65,24 +65,29 @@ public class JwtAuthenticationFilter implements Filter {
         //5. 인증(유효한 토큰)이 있어야 통과
         //http header에서 토큰 추출
         String token = resolveToken(httpRequest);
-        //토큰 유효성 검사
-        if(token != null && jwtTokenProvider.validateToken(token)){
-            //토큰이 유효할시 httprequest 객체에 저장
+
+        if (token != null && jwtTokenProvider.validateToken(token)) {
             String mno = jwtTokenProvider.getUsermnoFromToken(token);
             String roles = jwtTokenProvider.getRolesFromToken(token);
 
-            httpRequest.setAttribute("authenticatedUsermno",mno);
-            httpRequest.setAttribute("authenticatedRoles",roles);
-
-
-            filterChain.doFilter(httpRequest,httpResponse);
+            if (mno != null) {
+                httpRequest.setAttribute("authenticatedUsermno", mno);
+                httpRequest.setAttribute("authenticatedRoles", roles);
+                // 인증 성공 후, 필터 체인 진행
+                filterChain.doFilter(httpRequest, httpResponse);
+            } else {
+                // 토큰은 유효하나 mno가 null인 경우
+                httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
+                httpResponse.setContentType("application/json");
+                httpResponse.setCharacterEncoding("UTF-8");
+                httpResponse.getWriter().write("{\"message\" : \"비정상적인 토큰입니다.\"}");
+            }
         } else {
-            //토큰이 유효하지 않을때(401)
+            // 토큰이 없거나 유효하지 않은 경우
             httpResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
             httpResponse.setContentType("application/json");
             httpResponse.setCharacterEncoding("UTF-8");
-            httpResponse.getWriter()
-                    .write("{\"message\" : \"권한 없음: 유효하지 않거나 토큰이 존재하지 않습니다.\"}");
+            httpResponse.getWriter().write("{\"message\" : \"권한 없음: 유효하지 않거나 토큰이 존재하지 않습니다.\"}");
         }
     }
 }
