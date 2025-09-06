@@ -61,17 +61,26 @@ public class BoardReviewController {
         return map;
     }
 
-    // 댓글 좋아요 토글
-    @GetMapping("/comment/awesome/{cno}")
-    public Map<String, Object> toggleCommentAwesome(@PathVariable int cno,
-                                                    @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
+
+
+    //게시글 수정
+    @PatchMapping("/update/{brno}")
+    public Map<String, Object> updateReview(@PathVariable int brno,
+                                            @RequestBody BoardReviewDTO review,
+                                            @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
         Map<String, Object> map = new HashMap<>();
-        long mno = Long.parseLong(authenticatedUserMno);
+        BoardReviewDTO originalReview = boardReviewService.getReview(brno);
 
-        boardReviewService.toggleCommentAwesome(cno, mno);
-
-        map.put("msg", "요청이 처리되었습니다.");
-        // map.put("awesomeCount", boardReviewService.getCommentAwesomeCount(cno)); // 필요 시 추가
+        if (originalReview.getMno() == Long.parseLong(authenticatedUserMno)) {
+            review.setBrno(brno); // URL의 brno를 DTO에 설정
+            boardReviewService.updateReview(review); //
+            map.put("code", 1);
+            map.put("msg", "게시글 수정 완료");
+            map.put("brno", brno);
+        } else {
+            map.put("code", 2);
+            map.put("msg", "수정 권한이 없습니다.");
+        }
         return map;
     }
 
@@ -89,6 +98,23 @@ public class BoardReviewController {
         } else {
             map.put("code", 2);
             map.put("msg", "삭제 권한이 없습니다.");
+        }
+        return map;
+    }
+
+    // 게시글 신고
+    @PatchMapping("/danger/{brno}")
+    public Map<String, Object> updateDanger(@PathVariable int brno,
+                                            @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            boardReviewService.handleDanger(brno);
+            map.put("code", 1);
+            map.put("msg", "게시글이 신고되었습니다.");
+        } catch (Exception e) {
+            map.put("code", 2);
+            map.put("msg", "신고 실패");
+            e.printStackTrace();
         }
         return map;
     }
@@ -145,6 +171,19 @@ public class BoardReviewController {
         }
         return map;
     }
+    // 댓글 좋아요 토글
+    @GetMapping("/comment/awesome/{cno}")
+    public Map<String, Object> toggleCommentAwesome(@PathVariable int cno,
+                                                    @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
+        Map<String, Object> map = new HashMap<>();
+        long mno = Long.parseLong(authenticatedUserMno);
+
+        boardReviewService.toggleCommentAwesome(cno, mno);
+
+        map.put("msg", "요청이 처리되었습니다.");
+        // map.put("awesomeCount", boardReviewService.getCommentAwesomeCount(cno)); // 필요 시 추가
+        return map;
+    }
 
     // 토스트hook사용해서파일업로드
     @PostMapping("/write")
@@ -152,7 +191,6 @@ public class BoardReviewController {
                                                       @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
         Map<String, Object> map = new HashMap<>();
         try {
-
             // review.setMno(Integer.parseInt(authenticatedUserMno));  25.09.05
             int mno = Integer.parseInt(authenticatedUserMno);
             review.setMno(mno);
@@ -162,6 +200,7 @@ public class BoardReviewController {
             if (result > 0) {
                 map.put("code", 1);
                 map.put("msg", "게시글 쓰기 성공");
+                map.put("brno", review.getBrno()); //25.09.06
             } else {
                 map.put("code", 2);
                 map.put("msg", "게시글 쓰기 실패");

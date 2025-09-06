@@ -102,37 +102,53 @@
         WHERE brno = #{brno}
     </update>
 
-<!--    <update id="updateReview" parameterType="board">-->
-<!--        UPDATE board_review-->
-<!--        SET brtitle = #{brtitle},-->
-<!--        brcontent = #{brcontent},-->
-<!--        brwrite_update = SYSDATE-->
+    <update id="updateReview" parameterType="boardReview">
+        UPDATE boardreview
+        SET brtitle = #{brtitle},
+        brcontent = #{brcontent},
+        brwrite_update = SYSDATE
+        WHERE brno = #{brno}
+    </update>
+
+    <delete id="deleteReview" parameterType="int">
+        DELETE FROM boardreview WHERE brno = #{brno}
+    </delete>
+
+    <select id="selectFileList" parameterType="int" resultType="BRFile">
+        SELECT * FROM brfile WHERE brno = #{brno}
+    </select>
+
+    <update id="updateDanger" parameterType="int">
+        UPDATE boardreview SET brdanger = brdanger + 1 WHERE brno = #{brno}
+    </update>
+    <update id="updateStatusToDanger" parameterType="int">
+        UPDATE boardreview SET brstatus = 1 WHERE brno = #{brno}
+    </update>
+<!--    <update id="updateStatusToDanger" parameterType="int">-->
+<!--        UPDATE boardreview-->
+<!--        SET brstatus = 1-->
 <!--        WHERE brno = #{brno}-->
 <!--    </update>-->
 
-<!--    <delete id="deleteReview" parameterType="int">-->
-<!--        DELETE FROM board_review WHERE brno = #{brno}-->
-<!--    </delete>-->
+
 
 <!--    <update id="updateHitCount" parameterType="int">-->
-<!--        UPDATE board_review SET brviewcount = brviewcount + 1 WHERE brno = #{brno}-->
+<!--        UPDATE boardreview SET brviewcount = brviewcount + 1 WHERE brno = #{brno}-->
 <!--    </update>-->
 
-<!--    <update id="updateDanger" parameterType="int">-->
-<!--        UPDATE boardreview SET brdanger = brdanger + 1 WHERE brno = #{brno}-->
-<!--    </update>-->
+
 
 <!--    <select id="selectCommentList" parameterType="int" resultType="BRComment">-->
-<!--        SELECT * FROM br_comment WHERE brno = #{brno} ORDER BY cno DESC-->
+<!--        SELECT * FROM brcomment WHERE brno = #{brno} ORDER BY cno DESC-->
 <!--    </select>-->
 
 <!--    <insert id="insertComment" parameterType="BRComment">-->
-<!--        INSERT INTO br_comment (cno, brno, mno, brccontent, brcwrite_date)-->
+<!--        INSERT INTO brcomment (cno, brno, mno, brccontent, brcwrite_date)-->
 <!--        VALUES (BR_COMMENT_SEQ.NEXTVAL, #{brno}, #{mno}, #{brccontent}, SYSDATE)-->
 <!--    </insert>-->
 
 <!--    <update id="updateComment" parameterType="BRComment">-->
-<!--        UPDATE br_comment-->
+<!--        UPDATE brcomment-->
 <!--        SET brccontent = #{brccontent},-->
 <!--        brcwrite_update = SYSDATE-->
 <!--        WHERE cno = #{cno}-->
@@ -142,9 +158,7 @@
 <!--        DELETE FROM br_comment WHERE cno = #{cno}-->
 <!--    </delete>-->
 
-<!--    <select id="selectFileList" parameterType="int" resultType="BRFile">-->
-<!--        SELECT * FROM br_file WHERE brno = #{brno}-->
-<!--    </select>-->
+
 
 <!--    <insert id="insertFile" parameterType="BRFile">-->
 <!--        INSERT INTO br_file (brfno, brno, brfname, brfpath)-->

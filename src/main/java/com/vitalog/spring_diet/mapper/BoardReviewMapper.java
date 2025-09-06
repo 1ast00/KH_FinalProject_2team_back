@@ -10,8 +10,6 @@ import java.util.Map;
 
 @Mapper
 public interface BoardReviewMapper {
-//  dec_25.08.27 안돌아간거 찾는 중.
-
     //게시판-게시글목록조회-페이징포함
 //    List<BoardReviewDTO> selectReviewList(PagingVo pagingVo);
     List<BoardReviewDTO> selectReviewList();
@@ -33,6 +31,7 @@ public interface BoardReviewMapper {
     void updateViewCount(int brno);
     //brdanger 1 증가 25.09.05
     int updateDanger(int brno);
+    void updateStatusToDanger(int brno);
 
     //BRcomment
     List<BRCommentDTO> selectCommentList(int brno);
@@ -73,5 +72,4 @@ public interface BoardReviewMapper {
     //getcomment용
     BRCommentDTO selectComment(int brcno);
 
-    
 }

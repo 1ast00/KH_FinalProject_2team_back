@@ -19,7 +19,6 @@ import java.util.Map;
 public class BoardReviewService {
 
     private final BoardReviewMapper boardReviewMapper;
-// dec+25.08.29 - 25.09.04 계속수정
 
     //전체 게시글 목록 조회 -페이징 포함 되던거.
 //    public Map<String, Object> getReviewList(int pageNo, int pageContentEa) {
@@ -87,21 +86,12 @@ public class BoardReviewService {
            return "added";
         }
     }
-//    //게시판 신고
-//    @PatchMapping("/danger/{brno}")
-//    public Map<String, Object> dangerReview(@PathVariable int brno) {
-//        Map<String, Object> map = new HashMap<>();
-//        try {
-//            boardReviewService.updateDanger(brno);
-//            map.put("code", 1);
-//            map.put("msg", "게시글이 신고되었습니다.");
-//        } catch (Exception e) {
-//            map.put("code", 2);
-//            map.put("msg", "신고 실패");
-//            e.printStackTrace();
-//        }
-//        return map;
-//    }
+    //게시판 신고
+    @Transactional
+    public void handleDanger(int brno) {
+        boardReviewMapper.updateDanger(brno); // brdanger 증가
+        boardReviewMapper.updateStatusToDanger(brno); // brstatus 변경
+    }
 
      //댓글 좋아요 토글
     public void toggleCommentAwesome(int cno, long mno) {
@@ -116,7 +106,7 @@ public class BoardReviewService {
         }
     }
 
-     //게시글 작성 (파일 포함) - dec_25.08.27 test 안됨.
+     //게시글 작성 (파일 포함)
     @Transactional
     public int writeReview(BoardReviewDTO review, List<BRFileDTO> fileList) {
         System.out.println("insertReview 호출 전 brno: " + review.getBrno());
@@ -132,9 +122,14 @@ public class BoardReviewService {
     }
 
 
-    // 파일 정보를 DB에 저장하는 메서드
+    // 파일 정보를 DB에 저장
     public void saveFile(BRFileDTO brFileDTO) {
         boardReviewMapper.insertBRFile(brFileDTO);
+    }
+
+    // 게시글 수정
+    public int updateReview(BoardReviewDTO review) {
+        return boardReviewMapper.updateReview(review);
     }
 
     //게시글삭제
