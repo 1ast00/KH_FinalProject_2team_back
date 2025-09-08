@@ -20,15 +20,12 @@ public class PagingVo {
     public int getCurrentPage(){
         return currentPage;
     }
-
     public int getPageOfContentCount(){
         return pageOfContentCount;
     }
-
     public void setPageOfContentCount(int pageOfContentCount){
         this.pageOfContentCount = pageOfContentCount;
     }
-
     //add_25.08.27
     public int getMno() {
         return mno;
