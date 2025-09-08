@@ -4,9 +4,11 @@ import lombok.Data;
 import org.apache.ibatis.type.Alias;
 
 @Data
-@Alias("BRFile")
+@Alias("bRFile")
 public class BRFileDTO {
-    private Number brfno;
+    private int brfno;
+    private int brno;
+    private int mno;
     private String brfname;
     private String brfpath;
 }

@@ -1,120 +1,173 @@
-
-
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-
 <mapper namespace="com.vitalog.spring_diet.mapper.BoardReviewMapper">
     <resultMap id="BoardReviewMap" type="boardReview">
-
-        <id property="brno" column="brno"/>
-        <result property="brtitle" column="brtitle"/>
-        <result property="brcontent" column="brcontent"/>
-        <result property="brwrite_date" column="brwrite_date"/>
-        <result property="brwrite_update" column="brwrite_update"/>
-        <result property="brhitcount" column="brhitcount"/>
-        <result property="brdanger" column="brdanger"/>
+        <id property="brno" column="BRNO"/>
+        <result column="MNO" property="mno" />
+        <result column="BRTITLE" property="brtitle" />
+        <result column="brcontent" property="brcontent" />
+        <result column="brwrite_date" property="brwrite_date" />
+        <result column="brwrite_update" property="brwrite_update" />
+        <result column="brviewcount" property="brviewcount" />
+        <result column="brdanger" property="brdanger" />
+        <result column="nickname" property="nickname" />
+        <result column="awesomeCount" property="awesomeCount" />
     </resultMap>
 
-    <select id="selectReviewList" parameterType="PagingVo" resultMap="BoardReviewMap">
-        SELECT *
-        FROM (
-        SELECT ROWNUM AS rnum, b.*
-        FROM (
-        SELECT brno, brtitle, brwrite_date, brhitcount, brdanger
-        FROM board_review
-        <where>
-            <if test="mno != null and mno > 0">
-                mno = #{mno}
-            </if>
-        </where>
-        ORDER BY brno DESC
-        ) b
-        WHERE ROWNUM &lt;= #{end}
-        )
-        WHERE rnum &gt;= #{start}
+<!--    <select id="selectReviewList" parameterType="PagingVo" resultMap="BoardReviewMap"> 페이징x-->
+<!--        SELECT *-->
+<!--        FROM (-->
+<!--        SELECT ROWNUM AS rnum, b.*-->
+<!--        FROM (-->
+<!--        SELECT brno, brtitle, brwrite_date, brviewcount, brdanger-->
+<!--        FROM boardreview-->
+<!--        <where>-->
+<!--            <if test="mno != null and mno > 0">-->
+<!--                mno = #{mno}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        ORDER BY brno DESC-->
+<!--        ) b-->
+<!--        WHERE ROWNUM &lt;= #{end}-->
+<!--        )-->
+<!--        WHERE rnum &gt;= #{start}-->
+<!--    </select>    -->
+    <select id="selectReviewList" resultMap="BoardReviewMap">
+        SELECT
+        br.brno, br.brtitle, m.nickname, br.brwrite_date, br.brviewcount,  br.brcontent, br.brwrite_update, br.brdanger
+        FROM boardreview br
+        JOIN member m ON br.mno = m.mno
+        ORDER BY br.brno DESC
     </select>
+<!--    <resultMap id="BoardReviewMap" type="boardReview">-->
+<!--        <id property="brno" column="brno"/>-->
+<!--        <result property="brtitle" column="brtitle"/>-->
+<!--        <result property="brcontent" column="brcontent"/>-->
+<!--        <result property="brwrite_date" column="brwrite_date"/>-->
+<!--        <result property="brwrite_update" column="brwrite_update"/>-->
+<!--        <result property="brhitcount" column="brhitcount"/>-->
+<!--        <result property="brdanger" column="brdanger"/>-->
+<!--    </resultMap>-->
+
+<!--    <select id="selectReviewList" parameterType="PagingVo" resultMap="BoardReviewMap">-->
+<!--        SELECT *-->
+<!--        FROM (-->
+<!--        SELECT ROWNUM AS rnum, b.*-->
+<!--        FROM (-->
+<!--        SELECT brno, brtitle, brwrite_date, brhitcount, brdanger-->
+<!--        FROM board_review-->
+<!--        <where>-->
+<!--            <if test="mno != null and mno > 0">-->
+<!--                mno = #{mno}-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        ORDER BY brno DESC-->
+<!--        ) b-->
+<!--        WHERE ROWNUM &lt;= #{end}-->
+<!--        )-->
+<!--        WHERE rnum &gt;= #{start}-->
+<!--    </select>-->
 
     <select id="selectReviewTotalCount" resultType="int">
-        SELECT COUNT(*) FROM board_review
+        SELECT COUNT(*) FROM boardreview
     </select>
 
-    <select id="selectMyReviewTotalCount" parameterType="long" resultType="int">
-        SELECT COUNT(*) FROM board_review WHERE mno = #{mno}
+    <select id="selectMyReviewTotalCount" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM boardreview WHERE mno = #{mno}
     </select>
 
-    <select id="selectReviewTotalCount" resultType="int">
-        SELECT COUNT(*) FROM board_review
+    <select id="selectReview" resultMap="BoardReviewMap">
+        SELECT
+        br.*,
+        m.nickname, (SELECT COUNT(*) FROM BRAwesome WHERE brno = br.brno) AS awesomeCount
+        FROM boardreview br
+        JOIN member m ON br.mno = m.mno
+        WHERE br.brno = #{brno}
     </select>
 
-    <select id="selectReview" parameterType="int" resultMap="BoardReviewMap">
-        SELECT *
-        FROM board_review
-        WHERE brno = #{brno}
-    </select>
-
-    <insert id="insertReview" parameterType="board">
+    <insert id="insertReview" parameterType="boardReview">
         <selectKey keyProperty="brno" resultType="int" order="BEFORE">
-            SELECT BOARD_REVIEW_SEQ.NEXTVAL FROM DUAL
+            SELECT BOARDREVIEW_SEQ.NEXTVAL FROM DUAL
         </selectKey>
-        INSERT INTO board_review (brno, brtitle, brcontent, mno, brwrite_date, brhitcount, brdanger)
-        VALUES (#{brno}, #{brtitle}, #{brcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0)
+        INSERT INTO boardreview (brno, brtitle, brcontent, mno, brwrite_date, brdanger, brviewcount, brstatus )
+        VALUES (#{brno}, #{brtitle}, #{brcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0, 0)
     </insert>
 
-    <update id="updateReview" parameterType="board">
-        UPDATE board_review
+    <update id="updateViewCount" parameterType="int">
+        UPDATE boardreview
+        SET brviewcount = brviewcount + 1
+        WHERE brno = #{brno}
+    </update>
+
+    <update id="updateReview" parameterType="boardReview">
+        UPDATE boardreview
         SET brtitle = #{brtitle},
-        brcontent = #{brcontent, jdbcType=CLOB},
+        brcontent = #{brcontent},
         brwrite_update = SYSDATE
         WHERE brno = #{brno}
     </update>
 
     <delete id="deleteReview" parameterType="int">
-        DELETE FROM board_review WHERE brno = #{brno}
-    </delete>
-
-    <update id="updateHitCount" parameterType="int">
-        UPDATE board_review SET brhitcount = brhitcount + 1 WHERE brno = #{brno}
-    </update>
-
-    <update id="updateDanger" parameterType="int">
-        UPDATE board_review SET brdanger = brdanger + 1 WHERE brno = #{brno}
-    </update>
-
-    <select id="selectCommentList" parameterType="int" resultType="BRComment">
-        SELECT * FROM br_comment WHERE brno = #{brno} ORDER BY cno DESC
-    </select>
-
-    <insert id="insertComment" parameterType="BRComment">
-        INSERT INTO br_comment (cno, brno, mno, brccontent, brcwrite_date)
-        VALUES (BR_COMMENT_SEQ.NEXTVAL, #{brno}, #{mno}, #{brccontent}, SYSDATE)
-    </insert>
-
-    <update id="updateComment" parameterType="BRComment">
-        UPDATE br_comment
-        SET brccontent = #{brccontent},
-        brcwrite_update = SYSDATE
-        WHERE cno = #{cno}
-    </update>
-
-    <delete id="deleteComment" parameterType="int">
-        DELETE FROM br_comment WHERE cno = #{cno}
+        DELETE FROM boardreview WHERE brno = #{brno}
     </delete>
 
     <select id="selectFileList" parameterType="int" resultType="BRFile">
-        SELECT * FROM br_file WHERE brno = #{brno}
+        SELECT * FROM brfile WHERE brno = #{brno}
     </select>
 
-    <insert id="insertFile" parameterType="BRFile">
-        INSERT INTO br_file (brfno, brno, brfname, brfpath)
-        VALUES (BR_FILE_SEQ.NEXTVAL, #{brno}, #{brfname}, #{brfpath})
-    </insert>
+    <update id="updateDanger" parameterType="int">
+        UPDATE boardreview SET brdanger = brdanger + 1 WHERE brno = #{brno}
+    </update>
+    <update id="updateStatusToDanger" parameterType="int">
+        UPDATE boardreview SET brstatus = 1 WHERE brno = #{brno}
+    </update>
+<!--    <update id="updateStatusToDanger" parameterType="int">-->
+<!--        UPDATE boardreview-->
+<!--        SET brstatus = 1-->
+<!--        WHERE brno = #{brno}-->
+<!--    </update>-->
 
-    <delete id="deleteFile" parameterType="int">
-        DELETE FROM br_file WHERE brfno = #{brfno}
-    </delete>
+
+
+<!--    <update id="updateHitCount" parameterType="int">-->
+<!--        UPDATE boardreview SET brviewcount = brviewcount + 1 WHERE brno = #{brno}-->
+<!--    </update>-->
+
+
+
+<!--    <select id="selectCommentList" parameterType="int" resultType="BRComment">-->
+<!--        SELECT * FROM brcomment WHERE brno = #{brno} ORDER BY cno DESC-->
+<!--    </select>-->
+
+<!--    <insert id="insertComment" parameterType="BRComment">-->
+<!--        INSERT INTO brcomment (cno, brno, mno, brccontent, brcwrite_date)-->
+<!--        VALUES (BR_COMMENT_SEQ.NEXTVAL, #{brno}, #{mno}, #{brccontent}, SYSDATE)-->
+<!--    </insert>-->
+
+<!--    <update id="updateComment" parameterType="BRComment">-->
+<!--        UPDATE brcomment-->
+<!--        SET brccontent = #{brccontent},-->
+<!--        brcwrite_update = SYSDATE-->
+<!--        WHERE cno = #{cno}-->
+<!--    </update>-->
+
+<!--    <delete id="deleteComment" parameterType="int">-->
+<!--        DELETE FROM br_comment WHERE cno = #{cno}-->
+<!--    </delete>-->
+
+
+
+<!--    <insert id="insertFile" parameterType="BRFile">-->
+<!--        INSERT INTO br_file (brfno, brno, brfname, brfpath)-->
+<!--        VALUES (BR_FILE_SEQ.NEXTVAL, #{brno}, #{brfname}, #{brfpath})-->
+<!--    </insert>-->
+
+<!--    <delete id="deleteFile" parameterType="int">-->
+<!--        DELETE FROM br_file WHERE brfno = #{brfno}-->
+<!--    </delete>-->
 
     <insert id="insertReviewAwesome" parameterType="map">
         INSERT INTO BRAwesome (brno, mno) VALUES (#{brno}, #{mno})
@@ -124,30 +177,33 @@
         DELETE FROM BRAwesome WHERE brno = #{brno} AND mno = #{mno}
     </delete>
 
-    <select id="selectReviewAwesomeCount" parameterType="int" resultType="int">
+    <select id="selectReviewAwesomeCount" resultType="int">
         SELECT COUNT(*) FROM BRAwesome WHERE brno = #{brno}
     </select>
 
-    <select id="checkReviewAwesome" parameterType="map" resultType="int">
+    <select id="selectAwesomeMemberIds" resultType="int">
+        SELECT mno FROM BRAwesome WHERE brno = #{brno}
+    </select>
+
+    <select id="checkReviewAwesome" resultType="int">
         SELECT COUNT(*) FROM BRAwesome WHERE brno = #{brno} AND mno = #{mno}
     </select>
 
-    <insert id="insertCommentAwesome" parameterType="map">
-        INSERT INTO BRCommentawesome (cno, mno) VALUES (#{cno}, #{mno})
-    </insert>
+<!--    <insert id="insertCommentAwesome" parameterType="map">-->
+<!--        INSERT INTO BRCommentawesome (cno, mno) VALUES (#{cno}, #{mno})-->
+<!--    </insert>-->
 
-    <delete id="deleteCommentAwesome" parameterType="map">
-        DELETE FROM BRCommentawesome WHERE cno = #{cno} AND mno = #{mno}
-    </delete>
+<!--    <delete id="deleteCommentAwesome" parameterType="map">-->
+<!--        DELETE FROM BRCommentawesome WHERE cno = #{cno} AND mno = #{mno}-->
+<!--    </delete>-->
 
-    <select id="selectCommentAwesomeCount" parameterType="int" resultType="int">
-        SELECT COUNT(*) FROM BRCommentawesome WHERE cno = #{cno}
-    </select>
+<!--    <select id="selectCommentAwesomeCount" parameterType="int" resultType="int">-->
+<!--        SELECT COUNT(*) FROM BRCommentawesome WHERE cno = #{cno}-->
+<!--    </select>-->
 
-    <select id="checkCommentAwesome" parameterType="map" resultType="int">
-        SELECT COUNT(*) FROM BRCommentawesome WHERE cno = #{cno} AND mno = #{mno}
-    </select>
-    <select id="selectComment" parameterType="int" resultType="BRComment">SELECT * FROM br_comment WHERE cno = #{cno}
-    </select>
-
+<!--    <select id="checkCommentAwesome" parameterType="map" resultType="int">-->
+<!--        SELECT COUNT(*) FROM BRCommentawesome WHERE cno = #{cno} AND mno = #{mno}-->
+<!--    </select>-->
+<!--    <select id="selectComment" parameterType="int" resultType="BRComment">SELECT * FROM br_comment WHERE cno = #{cno}-->
+<!--    </select>-->
 </mapper>

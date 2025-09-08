@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/api/ai")
 @RequiredArgsConstructor
 public class GeminiController {
@@ -27,5 +26,19 @@ public class GeminiController {
 
         // 프론트엔드에 JSON 형태로 응답 반환
         return ResponseEntity.ok(Map.of("response", response));
+    }
+
+    @PostMapping("/foodChat")
+    public ResponseEntity<Map<String,String>> getFoodAiResponse(@RequestBody GeminiDTO geminiDTO){
+
+        System.out.println("geminiDTO");
+
+        String prompt = geminiDTO.getPrompt();
+        System.out.println("prompt: "+prompt);
+
+        String response = geminiService.getResponseFromGemini(prompt);
+        System.out.println("response");
+
+        return ResponseEntity.ok(Map.of("response",response));
     }
 }

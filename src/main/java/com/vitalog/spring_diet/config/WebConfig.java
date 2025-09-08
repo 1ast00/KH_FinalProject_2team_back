@@ -6,7 +6,9 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 
 @Configuration
 @RequiredArgsConstructor
@@ -37,4 +39,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET","POST","PUT","PATCH","DELETE","OPTIONS")
                 .allowedHeaders("*").allowCredentials(true).maxAge(3600);
     }
+    //게시판 파일불러오기
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 클라이언트가 /images/**로 요청하면
+        // file:///C:/Vitalog/images/ 경로의 파일을 찾아 응답합니다.
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("file:///C:/Vitalog/images/");
+    }
+
 }

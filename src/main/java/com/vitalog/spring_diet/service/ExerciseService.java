@@ -1,61 +1,62 @@
+// src/main/java/com/vitalog/spring_diet/service/ExerciseService.java
+
 package com.vitalog.spring_diet.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vitalog.spring_diet.dto.ExerciseDTO;
+import com.vitalog.spring_diet.mapper.ExerciseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ExerciseService {
 
-    // 의존성 주입으로 RestTemplate Bean을 받음
-    private final RestTemplate restTemplate;
-
-    // properties 파일에서 exercise.api.service-key 값 주입(운동 정보 API 인증키)
     @Value("${exercise.api.service-key}")
     private String serviceKey;
 
-    // 운동 데이터 가져오는 메서드
-    public List<ExerciseDTO> getExerciseData() {
+    private final ExerciseMapper exerciseMapper;
 
+    // getRecommendedExercises 메소드가 String 파라미터를 받도록 수정
+    public List<ExerciseDTO> getRecommendedExercises(String exerciseType) {
+        // 파라미터를 매퍼 메소드로 전달
+        return exerciseMapper.selectRecommendedExercises(exerciseType);
+    }
+
+    public List<ExerciseDTO> getExerciseData() {
         try {
-            // 호출할 API URL 주소
             String apiUrl = "https://api.odcloud.kr/api/15068730/v1/uddi:e57a5dba-bbbf-414e-a5cd-866c48378daa?page=1&perPage=1000";
 
-            // HTTP 요청 헤더 생성
-            HttpHeaders headers = new HttpHeaders();
+            // 1. HttpClient 객체 생성
+            HttpClient client = HttpClient.newHttpClient();
 
-            // 헤더에 인증키 추가(헤더로 인증키 보낼 때 Key : Authorization, Value : Infuser로 보내라고 되어있음)
-            headers.set("Authorization", "Infuser " + this.serviceKey);
+            // 2. HttpRequest 객체 생성 (요청 내용 설정)
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(apiUrl)) // 요청 URL 설정
+                    .header("Authorization", "Infuser " + this.serviceKey) // 헤더 설정
+                    .GET() // GET 메서드 사용
+                    .build();
 
-            // 헤더를 HTTP 요청에 포함
-            HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
+            // 3. 요청 전송 및 응답 수신
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            // RestTemplate으로 API를 호출하고 응답을 받음
-            ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.GET, entity, String.class);
-
-            // JSON 변환을 위한 ObjectMapper 생성
+            // 4. 응답 본문(JSON 문자열) 파싱
+            String responseBody = response.body();
             ObjectMapper mapper = new ObjectMapper();
-
-            // 응답받은 JSON을 트리 구조로 읽음
-            JsonNode root = mapper.readTree(response.getBody());
-
-            // JSON에서 'data' 부분만 추출
+            JsonNode root = mapper.readTree(responseBody);
             JsonNode dataNode = root.path("data");
 
-            // 'data' 부분을 ExerciseDTO 리스트로 변환하여 반환
             return mapper.readValue(dataNode.toString(), new TypeReference<List<ExerciseDTO>>() {});
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;

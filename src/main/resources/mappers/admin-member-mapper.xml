@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitalog.spring_diet.mapper.AdminMemberMapper">
+
+    <!-- 회원 목록: 검색(q), 역할(role) + 페이징(offset,size)
+         * status 컬럼은 DB에 없으므로 1(상수)로 제공 -->
+    <select id="selectMembers"
+            parameterType="map"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.MemberListItemDTO">
+
+        <!-- null-safe 기본값 -->
+        <bind name="off" value="offset != null ? offset : 0"/>
+        <bind name="lim" value="size   != null ? size   : 10"/>
+
+        SELECT
+        TO_CHAR(m.mno) AS memberNo,
+        m.userid       AS userid,
+        m.gender       AS gender,
+        m.role         AS role,
+        1              AS status   -- ← DB에 status 없음. 상수로 반환
+        FROM member m
+        <where>
+            <if test="q != null and q != ''">
+                (LOWER(m.userid)    LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.nickname) LIKE LOWER('%' || #{q} || '%'))
+            </if>
+            <!-- status 필터 제거 -->
+            <if test="role != null and role != '' and role != 'ALL'">
+                AND m.role = #{role}
+            </if>
+        </where>
+        ORDER BY m.mno DESC
+        OFFSET #{off, jdbcType=INTEGER} ROWS FETCH NEXT #{lim, jdbcType=INTEGER} ROWS ONLY
+    </select>
+
+    <!-- 회원 총 개수(동일 조건) -->
+    <select id="countMembers"
+            parameterType="map"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM member m
+        <where>
+            <if test="q != null and q != ''">
+                (LOWER(m.userid)    LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.nickname) LIKE LOWER('%' || #{q} || '%'))
+            </if>
+            <!-- status 필터 제거 -->
+            <if test="role != null and role != '' and role != 'ALL'">
+                AND m.role = #{role}
+            </if>
+        </where>
+    </select>
+
+    <!-- 상세 기본
+         * status는 상수 1로 내려서 DTO 필드 유지 -->
+    <select id="selectMemberBasic"
+            parameterType="long"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.MemberBasicDTO">
+        SELECT
+        TO_CHAR(m.mno) AS memberNo,
+        m.mno          AS mno,
+        m.userid       AS userid,
+        m.nickname     AS nickname,
+        m.gender       AS gender,
+        m.height       AS height,
+        m.weight       AS weight,
+        m.goal_weight  AS goalWeight,
+        m.role         AS role,
+        1              AS status   -- ← DB에 없음. 상수로 제공
+        FROM member m
+        WHERE m.mno = #{mno}
+    </select>
+
+    <!-- 요약 카운트 -->
+    <select id="countDietPostsByMember" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM BoardMeals bm WHERE bm.mno = #{mno}
+    </select>
+
+    <select id="countReviewPostsByMember" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM BoardReview br WHERE br.mno = #{mno}
+    </select>
+
+    <!-- ⚠ 테이블/컬럼명 스키마에 맞게 수정:
+         BMComment(bmccontent, bmcwrite_date), BRComment(brccontent, brcwrite_date) -->
+    <select id="countDietCommentsByMember" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM BMComment bmc WHERE bmc.mno = #{mno}
+    </select>
+
+    <select id="countReviewCommentsByMember" parameterType="long" resultType="int">
+        SELECT COUNT(*) FROM BRComment rc WHERE rc.mno = #{mno}
+    </select>
+
+    <!-- 최근 N개 글/댓글 -->
+    <select id="selectRecentDietPosts"
+            parameterType="map"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.PostItemDTO">
+        SELECT
+        bm.bmno                              AS id,
+        bm.bmtitle                           AS title,
+        TO_CHAR(bm.bmwritedate, 'YYYY-MM-DD') AS "date"
+        FROM BoardMeals bm
+        WHERE bm.mno = #{mno}
+        ORDER BY bm.bmno DESC
+        FETCH FIRST #{limit, jdbcType=INTEGER} ROWS ONLY
+    </select>
+
+    <select id="selectRecentReviewPosts"
+            parameterType="map"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.PostItemDTO">
+        SELECT
+        br.brno                              AS id,
+        br.brtitle                           AS title,
+        TO_CHAR(br.brwrite_date, 'YYYY-MM-DD') AS "date"
+        FROM BoardReview br
+        WHERE br.mno = #{mno}
+        ORDER BY br.brno DESC
+        FETCH FIRST #{limit, jdbcType=INTEGER} ROWS ONLY
+    </select>
+
+    <select id="selectRecentDietComments"
+            parameterType="map"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.CommentItemDTO">
+        SELECT
+        bmc.bmcno                            AS id,
+        bmc.bmccontent                       AS content,
+        TO_CHAR(bmc.bmcwrite_date, 'YYYY-MM-DD') AS "date"
+        FROM BMComment bmc
+        WHERE bmc.mno = #{mno}
+        ORDER BY bmc.bmcno DESC
+        FETCH FIRST #{limit, jdbcType=INTEGER} ROWS ONLY
+    </select>
+
+    <select id="selectRecentReviewComments"
+            parameterType="map"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.CommentItemDTO">
+        SELECT
+        rc.cno                               AS id,
+        rc.brccontent                        AS content,
+        TO_CHAR(rc.brcwrite_date, 'YYYY-MM-DD') AS "date"
+        FROM BRComment rc
+        WHERE rc.mno = #{mno}
+        ORDER BY rc.cno DESC
+        FETCH FIRST #{limit, jdbcType=INTEGER} ROWS ONLY
+    </select>
+
+    <!-- 업데이트/삭제 -->
+    <update id="updateMemberRole">
+        UPDATE member SET role = #{role} WHERE mno = #{mno}
+    </update>
+
+    <delete id="deleteMember">
+        DELETE FROM member WHERE mno = #{mno}
+    </delete>
+
+</mapper>

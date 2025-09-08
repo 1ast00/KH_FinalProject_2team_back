@@ -17,8 +17,13 @@ public class HealthDailyLogDTO {
     private String hdate;         // 'YYYY-MM-DD'
     private String sleeptime;     // 'HH:MM'
 
-    // 일지 테이블에 저장하지 않지만 응답/요청으로 주고받는다.
-    private Double weight;        // ← member.weight 로 채워서 응답
+    // 0903 hweight 컬럼 추가 - 시작
+    // 실제 테이블 컬럼(Health_Daily_Log.hweight)
+    private Double hweight;
+    // 프론트 기존 호환(카드에서 item.weight 사용): 조회 시 hweight를 weight에도 매핑
+    private Double weight;
+    // 0903 hweight 컬럼 추가 - 끝
+
     private Double wateramount;
     private String exercise;
     private String food;

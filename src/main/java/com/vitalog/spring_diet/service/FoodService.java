@@ -1,3 +1,4 @@
+
 package com.vitalog.spring_diet.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,8 +46,8 @@ public class FoodService {
     //API를 불러와서 요청한 정보를 가공하는 method
     public List<FoodNutritionDTO> foodApiSearch(String searchTxt, int page) {
 
-        System.out.println("searchTxt in Controller: "+ searchTxt);
-        System.out.println("page in controller"+page);
+//        System.out.println("searchTxt in Controller: "+ searchTxt);
+//        System.out.println("page in controller"+page);
 
         pageNo = page;
 
@@ -93,6 +94,77 @@ public class FoodService {
 
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             responseString = br.lines().collect(Collectors.joining(System.lineSeparator()));
+//            System.out.println("responseString: " + responseString);
+
+            if(returnType.equals(returnType)){
+                return parseJsonToList(responseString);
+            } else {
+                return parseXmlToList(responseString);
+            }
+
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            if(conn != null)
+                conn.disconnect();
+        }
+    }
+
+    //전체 api 데이터 목록 다 받아오는 메소드: 캐러셀을 만들기 위해 사용
+    public List<FoodNutritionDTO> foodCarouselSearch(String searchTxt, int page) {
+
+//        System.out.println("searchTxt in Controller: "+ searchTxt);
+//        System.out.println("page in controller"+page);
+
+        pageNo = page;
+
+        //pageNo
+        String apiURL = "https://apis.data.go.kr/B553748/CertImgListServiceV3/getCertImgListServiceV3";
+        apiURL += "?ServiceKey=" + SERVICE_KEY;
+        apiURL += "&pageNo=" + pageNo;
+        apiURL += "&numOfRows=" + 100;
+        apiURL += "&returnType=" + returnType;
+
+        //1. SearchTxt를 UTF-8형태로 encoding 후 URL에 추가
+        try {
+            prdlstNm = URLEncoder.encode(searchTxt,"UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+
+        if(prdlstNm != "") {
+            apiURL += "&prdlstNm=" + prdlstNm;
+        }
+
+        //2. URL Verification setting
+
+        HttpURLConnection conn = null;
+        URL url = null;
+
+        try {
+            url = new URL(apiURL);
+            conn = (HttpURLConnection) url.openConnection();
+
+            conn.setRequestMethod("GET");
+            //서버와 연결하는 최대시간 설정
+            conn.setConnectTimeout(5000);
+            //서버 연결후 응답을 기다리는 최대시간
+            conn.setReadTimeout(5000);
+
+            InputStream is = null;
+
+            if(conn.getResponseCode() == HttpURLConnection.HTTP_OK){
+                is = conn.getInputStream();
+            } else{
+                is = conn.getErrorStream();
+            }
+
+            String responseString = null;
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+            responseString = br.lines().collect(Collectors.joining(System.lineSeparator()));
             System.out.println("responseString: " + responseString);
 
             if(returnType.equals(returnType)){
@@ -111,10 +183,11 @@ public class FoodService {
         }
     }
 
+
     //String -> JSON -> list로 parsing(Jackson 이용)
     private List<FoodNutritionDTO> parseJsonToList(String json){
 
-        System.out.println("String json: "+json);
+//        System.out.println("String json: "+json);
 
         //빈 리스트를 유사시 반환하기 위해 초기화와 함께 선언
         List<FoodNutritionDTO> resultList = new ArrayList<>();
@@ -123,45 +196,68 @@ public class FoodService {
             ObjectMapper mapper = new ObjectMapper();
 
             Map<String,Object> map = mapper.readValue(json, Map.class);
-            System.out.println("Map: "+ map);
+//            System.out.println("Map: "+ map);
 
             Map<String,Object> body = (Map<String, Object>) map.get("body");
-            System.out.println("body: "+body);
+//            System.out.println("body: "+body);
+            Integer totalCount = Integer.parseInt((String) body.get("totalCount"));
+//            System.out.println("totalCount: "+totalCount);
+
             //body가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌: null safe
             if(body == null) return resultList;
 
             List<Map<String,Object>> foodList = (List<Map<String,Object>>) body.get("items");
-            System.out.println("foodList: "+foodList);
+//            System.out.println("foodList: "+foodList);
             //foodList가 null값인 경우 null pointer Exception이 발생하므로 null값인 경우 빈 배열을 넣어줌: null safe
             if(foodList == null) return resultList;
 
             for (Map<String,Object> items : foodList) {
                 Map<String,Object> item = (Map<String, Object>) items.get("item");
                 if(item == null) continue;
-                System.out.println("item: "+item);
+//                System.out.println("item: "+item);
 
                 FoodNutritionDTO foodDTO = new FoodNutritionDTO();
-                //주키
-                foodDTO.setPrdlstReportNo((String) item.get("prdlstReportNo"));
+                //주키:null safe
+                String prdlistReportNo = (String) item.get("prdlstReportNo");
+                foodDTO.setPrdlstReportNo(prdlistReportNo != null ? prdlistReportNo : "정보없음");
 
-                //rnum이 비어있을 시 대비: null safe
+                //객체의 다른 property가 비어있을 시 대비: null safe
                 String rnumStr = (String) item.get("rnum");
                 foodDTO.setRnum(rnumStr != null ? Integer.parseInt(rnumStr) : 0);
 
-                foodDTO.setProductGb((String) item.get("productGb"));
-                foodDTO.setPrdlstNm((String) item.get("prdlstNm"));
-                foodDTO.setRawmtrl((String) item.get("rawmtrl"));
-                foodDTO.setAllergy((String) item.get("allergy"));
-                foodDTO.setNutrient((String) item.get("nutrient"));
-                foodDTO.setPrdkind((String) item.get("prdkind"));
-                foodDTO.setManufacture((String) item.get("manufacture"));
-                foodDTO.setImgurl1((String) item.get("imgurl1"));
-                foodDTO.setImgurl2((String) item.get("imgurl2"));
+                String productGb = (String) item.get("productGb");
+                foodDTO.setProductGb(productGb != null ? productGb : "정보없음");
+
+                String prdlstNm = (String) item.get("prdlstNm");
+                foodDTO.setPrdlstNm(prdlstNm != null ? prdlstNm : "정보없음");
+
+                String rawmtrl = (String) item.get("rawmtrl");
+                foodDTO.setRawmtrl(rawmtrl != null ? rawmtrl : "정보없음");
+
+                String allergy = (String) item.get("allergy");
+                foodDTO.setAllergy(allergy != null ? allergy : "정보없음");
+
+                String nutrient = (String) item.get("nutrient");
+                foodDTO.setNutrient(nutrient != null ? nutrient : "정보없음");
+
+                String prdkind = (String) item.get("prdkind");
+                foodDTO.setPrdkind(prdkind != null ? prdkind : "정보없음");
+
+                String manufacture = (String) item.get("manufacture");
+                foodDTO.setManufacture(manufacture != null ? manufacture: "정보없음");
+
+                String imgurl1 = (String) item.get("imgurl1");
+                foodDTO.setImgurl1(imgurl1 != null? imgurl1 : "정보없음");
+
+                String imgurl2 = (String) item.get("imgurl2");
+                foodDTO.setImgurl2(imgurl2 != null? imgurl2: "정보없음");
+
+                foodDTO.setTotalCount(totalCount != null? totalCount: 0);
 
                 resultList.add(foodDTO);
             }
 
-            System.out.println("resultList: "+ resultList);
+//            System.out.println("resultList: "+ resultList);
 
             return resultList;
         } catch (JsonMappingException e) {
@@ -182,7 +278,7 @@ public class FoodService {
                     .parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
 
             NodeList items = doc.getElementsByTagName("item");
-            System.out.println("items: "+items);
+//            System.out.println("items: "+items);
 
             for(int i = 0; i < items.getLength(); i++){
                 Element e = (Element) items.item(i);

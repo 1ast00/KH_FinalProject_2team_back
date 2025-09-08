@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitalog.spring_diet.mapper.AdminReviewsMapper">
+
+    <!-- 목록 -->
+    <select id="selectReviewsPage"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReviewsListItemDTO">
+        SELECT
+        br.brno                                AS brno,
+        br.mno                                 AS mno,
+        br.brtitle                             AS title,
+        NVL(m.nickname, m.userid)              AS writer,
+        TO_CHAR(br.brwrite_date,'YYYY-MM-DD')  AS writeDate,
+        CASE WHEN br.brstatus = 1 THEN '게시' ELSE '숨김' END AS visible
+        FROM BoardReview br
+        JOIN member m ON m.mno = br.mno
+        <where>
+            <if test="q != null and q != ''">
+                (LOWER(br.brtitle) LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.nickname) LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.userid)   LIKE LOWER('%' || #{q} || '%'))
+            </if>
+            <if test="status != null and (status == 0 or status == 1)">
+                AND br.brstatus = #{status}
+            </if>
+        </where>
+        ORDER BY br.brno DESC
+        OFFSET #{offset, jdbcType=INTEGER} ROWS FETCH NEXT #{size, jdbcType=INTEGER} ROWS ONLY
+    </select>
+
+    <!-- 목록 카운트 -->
+    <select id="countReviewsPage" resultType="int">
+        SELECT COUNT(*)
+        FROM BoardReview br
+        JOIN member m ON m.mno = br.mno
+        <where>
+            <if test="q != null and q != ''">
+                (LOWER(br.brtitle) LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.nickname) LIKE LOWER('%' || #{q} || '%')
+                OR LOWER(m.userid)   LIKE LOWER('%' || #{q} || '%'))
+            </if>
+            <if test="status != null and (status == 0 or status == 1)">
+                AND br.brstatus = #{status}
+            </if>
+        </where>
+    </select>
+
+    <!-- ⭐ 상세 본문 -->
+    <select id="selectReviewDetail"
+            parameterType="long"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReviewDetailDTO">
+        SELECT
+        br.brno                         AS brno,
+        br.brtitle                      AS title,
+        br.brcontent                    AS content,
+        NVL(m.nickname, m.userid)       AS writer,
+        TO_CHAR(br.brwrite_date,'YYYY-MM-DD') AS writeDate,
+        CASE WHEN br.brstatus = 1 THEN '게시' ELSE '숨김' END AS status,
+        br.brdanger                     AS danger
+        FROM BoardReview br
+        JOIN member m ON m.mno = br.mno
+        WHERE br.brno = #{brno}
+    </select>
+
+    <!-- ⭐ 상세 최근 댓글 N개 -->
+    <select id="selectRecentReviewComments"
+            parameterType="map"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReviewDetailDTO$CommentItem">
+        SELECT
+        c.cno                               AS id,
+        c.brccontent                        AS content,
+        NVL(m.nickname, m.userid)           AS writer,
+        TO_CHAR(c.brcwrite_date,'YYYY-MM-DD') AS date
+        FROM BRComment c
+        JOIN member m ON m.mno = c.mno
+        WHERE c.brno = #{brno}
+        ORDER BY c.cno DESC
+        FETCH FIRST #{limit, jdbcType=INTEGER} ROWS ONLY
+    </select>
+
+</mapper>
