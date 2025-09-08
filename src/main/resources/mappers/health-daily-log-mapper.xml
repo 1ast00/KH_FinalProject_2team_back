@@ -7,16 +7,17 @@
     <!-- 목록 -->
     <select id="selectMyLogs" resultType="hlog">
         SELECT
-        h.HNO                             AS hno
-        , h.MNO                             AS mno
-        , TO_CHAR(h.HDATE,'YYYY.MM.DD')     AS hdateStr
+        h.HNO                               AS hno
+        , h.MNO                               AS mno
+        , TO_CHAR(h.HDATE,'YYYY.MM.DD')       AS hdateStr
         , NVL(TO_CHAR(h.SLEEPTIME,'HH24:MI'), '00:00') AS sleeptimeStr
-        , h.HWEIGHT                         AS hweight
-        , h.HWEIGHT                         AS weight
-        , h.WATERAMOUNT                     AS wateramount
-        , h.EXERCISE                        AS exercise
-        , h.FOOD                            AS food
-        , TO_CHAR(h.HDATE,'YYYY-MM-DD')     AS hdate
+        , h.HWEIGHT                           AS hweight
+        , h.HWEIGHT                           AS weight
+        , h.WATERAMOUNT                       AS wateramount
+        , h.EXERCISE                          AS exercise
+        , h.FOOD                              AS food
+        , TO_CHAR(h.HDATE,'YYYY-MM-DD')       AS hdate
+        , h.CARD_COLOR                        AS bgcolor
         FROM Health_Daily_Log h
         JOIN member m ON m.mno = h.mno
         WHERE h.MNO = #{mno}
@@ -38,6 +39,7 @@
     <insert id="insertHealthDailyLog" parameterType="hlog">
         INSERT INTO Health_Daily_Log (
         HNO, MNO, HDATE, SLEEPTIME, HWEIGHT, WATERAMOUNT, EXERCISE, FOOD
+        , CARD_COLOR
         ) VALUES (
         #{hno},
         #{mno},
@@ -52,6 +54,7 @@
         NVL(#{wateramount}, 0),
         NVL(#{exercise}, '-'),
         NVL(#{food}, '-')
+        , #{bgcolor}
         )
     </insert>
 
@@ -80,6 +83,7 @@
         WATERAMOUNT = NVL(#{wateramount}, WATERAMOUNT),
         EXERCISE    = NVL(#{exercise}, EXERCISE),
         FOOD        = NVL(#{food}, FOOD)
+        , CARD_COLOR  = NVL(#{bgcolor}, CARD_COLOR)
         WHERE HNO = #{hno} AND MNO = #{mno}
     </update>
 
