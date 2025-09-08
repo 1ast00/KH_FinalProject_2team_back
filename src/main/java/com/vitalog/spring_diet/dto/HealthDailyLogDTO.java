@@ -27,5 +27,9 @@ public class HealthDailyLogDTO {
     private Double wateramount;
     private String exercise;
     private String food;
-}
 
+    /* 0908 DB 색상 저장 전환 - 시작 */
+    // Health_Daily_Log.CARD_COLOR 매핑
+    private String bgcolor; // 프론트에선 item.bgcolor 로 사용
+    /* 0908 DB 색상 저장 전환 - 끝 */
+}
