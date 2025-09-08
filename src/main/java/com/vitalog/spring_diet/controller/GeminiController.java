@@ -4,6 +4,9 @@ package com.vitalog.spring_diet.controller;
 
 import com.vitalog.spring_diet.dto.GeminiDTO;
 import com.vitalog.spring_diet.service.GeminiService;
+// 0907 sss_log 추가 - 시작
+import com.vitalog.spring_diet.service.HealthDailyLogGeminiService;
+// 0907 sss_log 추가 - 끝
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,29 +19,28 @@ import java.util.Map;
 public class GeminiController {
 
     private final GeminiService geminiService;
+    private final HealthDailyLogGeminiService healthDailyLogGeminiService; // 0907 추가
 
     @PostMapping("/chat")
     public ResponseEntity<Map<String, String>> getAiResponse(@RequestBody GeminiDTO geminiDTO) {
         String prompt = geminiDTO.getPrompt();
-
-        // 서비스에서 에러 처리까지 모두 담당하므로, 컨트롤러는 호출하고 결과만 받으면 됨
         String response = geminiService.getResponseFromGemini(prompt);
-
-        // 프론트엔드에 JSON 형태로 응답 반환
         return ResponseEntity.ok(Map.of("response", response));
     }
 
     @PostMapping("/foodChat")
     public ResponseEntity<Map<String,String>> getFoodAiResponse(@RequestBody GeminiDTO geminiDTO){
-
-        System.out.println("geminiDTO");
-
         String prompt = geminiDTO.getPrompt();
-        System.out.println("prompt: "+prompt);
-
         String response = geminiService.getResponseFromGemini(prompt);
-        System.out.println("response");
-
         return ResponseEntity.ok(Map.of("response",response));
     }
+
+    /* 0907 sss_log 추가 - 시작 */
+    @PostMapping("/healthdailylogchat")
+    public ResponseEntity<Map<String,String>> getHealthDailyLogAiResponse(@RequestBody GeminiDTO geminiDTO) {
+        String prompt = geminiDTO.getPrompt();
+        String response = healthDailyLogGeminiService.getResponseFromGemini(prompt);
+        return ResponseEntity.ok(Map.of("response", response));
+    }
+    /* 0907 sss_log 추가 - 끝 */
 }
