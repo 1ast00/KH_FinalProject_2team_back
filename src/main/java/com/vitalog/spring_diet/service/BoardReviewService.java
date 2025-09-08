@@ -94,9 +94,9 @@ public class BoardReviewService {
     }
 
      //댓글 좋아요 토글
-    public void toggleCommentAwesome(int cno, long mno) {
+    public void toggleCommentAwesome(int brcno, long mno) {
         Map<String, Object> map = new HashMap<>();
-        map.put("cno", cno);
+        map.put("brcno", brcno);
         map.put("mno", mno);
 
         if (boardReviewMapper.checkCommentAwesome(map) > 0) {
@@ -144,6 +144,11 @@ public class BoardReviewService {
         }
         boardReviewMapper.deleteReview(brno);
     }
+    //특정 댓글신고
+    @Transactional
+    public void handleCommentDanger(int brcno) {
+        boardReviewMapper.updateCommentDanger(brcno);
+    }
 
     // mapper 호출
     public BoardReviewDTO getReview(int brno) {
@@ -167,5 +172,6 @@ public class BoardReviewService {
     public int updateComment(BRCommentDTO comment) {
         return boardReviewMapper.updateComment(comment);
     }
+
 
 }

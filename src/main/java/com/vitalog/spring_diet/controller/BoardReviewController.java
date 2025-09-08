@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -18,8 +19,7 @@ import java.util.UUID;
 public class BoardReviewController {
 
     @Value("${file.upload-dir}") // 설정 파일의 경로를 읽어옵니다.
-    private String uploadPath;
-
+    private String uploadPath = this.uploadPath;
     private final BoardReviewService boardReviewService;
 
    public BoardReviewController(BoardReviewService boardReviewService) {
@@ -119,15 +119,20 @@ public class BoardReviewController {
         return map;
     }
 
+    // 댓글 목록 조회
+    @GetMapping("/comment/{brno}")
+    public List<BRCommentDTO> getCommentList(@PathVariable int brno) {
+        return boardReviewService.getCommentList(brno);
+    }
     // 댓글 삭제
-    @DeleteMapping("/comment/{cno}")
-    public Map<String, Object> deleteComment(@PathVariable int cno,
+    @DeleteMapping("/comment/{brcno}")
+    public Map<String, Object> deleteComment(@PathVariable int brcno,
                                              @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
         Map<String, Object> map = new HashMap<>();
-        BRCommentDTO comment = boardReviewService.getComment(cno);
+        BRCommentDTO comment = boardReviewService.getComment(brcno);
 
         if (comment.getMno() == Long.parseLong(authenticatedUserMno)) {
-            boardReviewService.deleteComment(cno);
+            boardReviewService.deleteComment(brcno);
             map.put("code", 1);
             map.put("msg", "댓글을 삭제했습니다.");
         } else {
@@ -142,7 +147,7 @@ public class BoardReviewController {
     public Map<String, Object> updateComment(@RequestBody BRCommentDTO comment,
                                              @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
         Map<String, Object> map = new HashMap<>();
-        BRCommentDTO originalComment = boardReviewService.getComment((Integer) comment.getBrcno());
+        BRCommentDTO originalComment = boardReviewService.getComment(comment.getBrcno());
 
         if (originalComment.getMno() == Long.parseLong(authenticatedUserMno)) {
             boardReviewService.updateComment(comment);
@@ -166,22 +171,42 @@ public class BoardReviewController {
             map.put("msg", "댓글 추가 완료");
             map.put("commentList", boardReviewService.getCommentList(comment.getBrno()));
         } catch (Exception e) {
+            e.printStackTrace();//25.09.08
             map.put("code", 2);
             map.put("msg", "댓글 추가 실패");
         }
         return map;
     }
     // 댓글 좋아요 토글
-    @GetMapping("/comment/awesome/{cno}")
-    public Map<String, Object> toggleCommentAwesome(@PathVariable int cno,
+    @PostMapping("/comment/awesome/{brcno}")
+    public Map<String, Object> toggleCommentAwesome(@PathVariable int brcno,
                                                     @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
-        Map<String, Object> map = new HashMap<>();
+        System.out.println("백엔드에 전달된 brcno 값: " + brcno);// 25.09.08 확인후주석
+       Map<String, Object> map = new HashMap<>();
         long mno = Long.parseLong(authenticatedUserMno);
 
-        boardReviewService.toggleCommentAwesome(cno, mno);
+        if (brcno == 0) { // int 타입이므로 null 대신 0으로 확인
+            // 에러 처리
+            throw new IllegalArgumentException("댓글 번호가 유효하지 않습니다.");
+        }
+        boardReviewService.toggleCommentAwesome(brcno, mno);
 
-        map.put("msg", "요청이 처리되었습니다.");
-        // map.put("awesomeCount", boardReviewService.getCommentAwesomeCount(cno)); // 필요 시 추가
+        map.put("msg", "좋아요 완료");
+        return map;
+    }
+    // 댓글 신고 API
+    @PatchMapping("/comment/danger/{brcno}")
+    public Map<String, Object> reportComment(@PathVariable int brcno) {
+        Map<String, Object> map = new HashMap<>();
+        try {
+            boardReviewService.handleCommentDanger(brcno);
+            map.put("code", 1);
+            map.put("msg", "댓글이 신고되었습니다.");
+        } catch (Exception e) {
+            map.put("code", 2);
+            map.put("msg", "댓글 신고에 실패했습니다.");
+            e.printStackTrace();
+        }
         return map;
     }
 
