@@ -21,7 +21,7 @@ public class ExerciseApiController {
 
     // getRecommendedExercises 메소드에 @RequestParam 파라미터 추가
     @GetMapping("/recommendations")
-    public List<ExerciseDTO> getRecommendedExercises(@RequestParam("exerciseType") String exerciseType) {
+    public List<ExerciseDTO> getRecommendedExercises(@RequestParam String exerciseType) {
         return exerciseService.getRecommendedExercises(exerciseType);
     }
 
