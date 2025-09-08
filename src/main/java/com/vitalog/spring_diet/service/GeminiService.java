@@ -57,6 +57,8 @@ public class GeminiService {
             JsonNode root = objectMapper.readTree(response.body());
             String responseText = root.path("candidates").get(0).path("content").path("parts").get(0).path("text").asText();
 
+            log.info("responseText: ",responseText);
+
             // 응답이 비어있으면 AI가 부적절한 답변 등으로 응답 생성을 거부한 경우일 수 있음
             if (responseText.isEmpty()) {
                 log.warn("Gemini API로부터 비어있는 응답을 받았습니다. JSON: {}", response.body());
