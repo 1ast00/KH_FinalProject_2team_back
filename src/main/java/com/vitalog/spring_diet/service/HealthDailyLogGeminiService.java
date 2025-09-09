@@ -33,8 +33,8 @@ public class HealthDailyLogGeminiService {
             return "AI 키가 설정되지 않아 피드백을 생성할 수 없습니다.";
         }
 
-        // 0907 모델: gemini-2.5-flash - 시작
-        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + apiKey;
+        // 0907 모델: gemini-2.5-flash - 시작 -> 1.5로 변경
+        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
         // 0907 모델 - 끝
 
         try {
