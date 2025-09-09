@@ -17,21 +17,30 @@ import java.util.Map;
 public class GeminiService {
 
     @Value("${gemini.api.key}")
-    private String apiKey;
+    private String apiKey; // 기존 헤더용 API 키
 
-    public GeminiService() {
-    }
+    // [추가] Exercise 전용 API 키를 담을 변수
+    @Value("${exercise.gemini.api.key}")
+    private String exerciseApiKey;
 
     public String getResponseFromGemini(String prompt) {
-        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + apiKey;
+        return callGeminiApi(prompt, this.apiKey);
+    }
+
+    // [추가] Exercise 전용 API 키를 사용하는 새로운 메소드
+    public String getResponseFromGeminiForExercise(String prompt) {
+        return callGeminiApi(prompt, this.exerciseApiKey);
+    }
+
+    private String callGeminiApi(String prompt, String keyToUse) {
+        String apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + keyToUse;
 
         try {
             // 1. 요청할 JSON 바디(Body)를 문자열로 생성
-            // ObjectMapper를 사용해 Map을 JSON 문자열로 변환
             Map<String, Object> requestBodyMap = Map.of(
-                    "contents", new Object[] {
+                    "contents", new Object[]{
                             Map.of(
-                                    "parts", new Object[] {
+                                    "parts", new Object[]{
                                             Map.of("text", prompt)
                                     }
                             )
@@ -46,8 +55,8 @@ public class GeminiService {
             // 3. POST 방식의 HttpRequest 객체 생성
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(apiUrl))
-                    .header("Content-Type", "application/json") // 헤더 설정
-                    .POST(HttpRequest.BodyPublishers.ofString(requestBody)) // POST 메서드와 바디 설정
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
 
             // 4. 요청 전송 및 응답 수신
@@ -57,7 +66,6 @@ public class GeminiService {
             JsonNode root = objectMapper.readTree(response.body());
             String responseText = root.path("candidates").get(0).path("content").path("parts").get(0).path("text").asText();
 
-            // 응답이 비어있으면 AI가 부적절한 답변 등으로 응답 생성을 거부한 경우일 수 있음
             if (responseText.isEmpty()) {
                 log.warn("Gemini API로부터 비어있는 응답을 받았습니다. JSON: {}", response.body());
                 return "AI가 응답을 생성하지 못했습니다. 질문을 바꿔서 시도해 보세요.";
