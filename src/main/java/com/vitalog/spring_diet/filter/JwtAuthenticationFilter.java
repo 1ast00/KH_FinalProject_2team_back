@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter implements Filter {
             "/api/exercise/data",
             "/api/exercise/recommendations",
             "/api/reviews/list",
-            "/api/meals/list"
+            "/api/meals/list",
             "/api/ai/chat"
 
     );
