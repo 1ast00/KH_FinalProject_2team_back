@@ -3,54 +3,71 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.AdminReportMapper">
 
+    <!-- 목록 (11g: ROW_NUMBER 페이징) -->
     <select id="selectReportsPage"
-            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReportListItemDTO">
+            parameterType="map"
+            resultType="map">
+        SELECT *
+        FROM (
         SELECT
-        ar.report_id       AS reportId,
-        ar.target_type     AS targetType,
-        ar.target_id       AS targetId,
-        CAST(NULL AS VARCHAR2(200)) AS titleSnapshot,
-        ar.reporter_mno    AS reporterMno,
-        CAST(NULL AS VARCHAR2(16))  AS createdAt,
-        ar.status          AS status,
-        CAST(NULL AS NUMBER)       AS resolvedBy,
-        CAST(NULL AS VARCHAR2(16)) AS resolvedAt
+        ar.report_id                         AS reportId,
+        ar.target_type                       AS targetType,
+        ar.target_id                         AS targetId,
+        ar.reporter_mno                      AS reporterMno,
+        ar.status                            AS status,
+        /* 스냅샷은 일단 NULL, 프론트에서 '-' 처리 */
+        NULL                                 AS titleSnapshot,
+        ROW_NUMBER() OVER (ORDER BY ar.report_id DESC) AS rn
         FROM AdminReport ar
         <where>
-            <if test="status != null and status != '' and status != 'ALL'">
-                ar.status = #{status}
+            <if test="q != null and q != ''">
+                ( CAST(ar.report_id AS VARCHAR2(50)) LIKE '%' || #{q} || '%'
+                OR UPPER(ar.target_type) LIKE UPPER('%' || #{q} || '%')
+                OR CAST(ar.target_id AS VARCHAR2(50)) LIKE '%' || #{q} || '%')
             </if>
             <if test="type != null and type != '' and type != 'ALL'">
                 AND ar.target_type = #{type}
             </if>
-            <if test="q != null and q != ''">
-                AND (
-                (REGEXP_LIKE(#{q}, '^[0-9]+$') AND ar.target_id = TO_NUMBER(#{q}))
-                OR (LOWER(ar.target_type) LIKE LOWER('%' || #{q} || '%'))
-                )
+            <if test="status != null and status != '' and status != 'ALL'">
+                AND ar.status = #{status}
             </if>
         </where>
-        ORDER BY ar.report_id DESC
-        OFFSET #{offset} ROWS FETCH NEXT #{size} ROWS ONLY
+        ) t
+        WHERE t.rn BETWEEN (#{offset} + 1) AND (#{offset} + #{size})
     </select>
 
-    <select id="countReportsPage" resultType="int">
+    <select id="countReportsPage" parameterType="map" resultType="int">
         SELECT COUNT(*)
         FROM AdminReport ar
         <where>
-            <if test="status != null and status != '' and status != 'ALL'">
-                ar.status = #{status}
+            <if test="q != null and q != ''">
+                ( CAST(ar.report_id AS VARCHAR2(50)) LIKE '%' || #{q} || '%'
+                OR UPPER(ar.target_type) LIKE UPPER('%' || #{q} || '%')
+                OR CAST(ar.target_id AS VARCHAR2(50)) LIKE '%' || #{q} || '%')
             </if>
             <if test="type != null and type != '' and type != 'ALL'">
                 AND ar.target_type = #{type}
             </if>
-            <if test="q != null and q != ''">
-                AND (
-                (REGEXP_LIKE(#{q}, '^[0-9]+$') AND ar.target_id = TO_NUMBER(#{q}))
-                OR (LOWER(ar.target_type) LIKE LOWER('%' || #{q} || '%'))
-                )
+            <if test="status != null and status != '' and status != 'ALL'">
+                AND ar.status = #{status}
             </if>
         </where>
+    </select>
+
+    <!-- 상세 (인터페이스 메서드명과 일치) -->
+    <select id="selectReportDetail"
+            parameterType="long"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReportDetailDTO">
+        SELECT
+        ar.report_id      AS reportId,
+        ar.target_type    AS targetType,
+        ar.target_id      AS targetId,
+        ar.reporter_mno   AS reporterMno,
+        ar.status         AS status,
+        ar.reason         AS reason,
+        TO_CHAR(ar.created_at, 'YYYY-MM-DD HH24:MI:SS') AS createdAt
+        FROM AdminReport ar
+        WHERE ar.report_id = #{reportId}
     </select>
 
     <update id="updateReportStatus">
@@ -59,9 +76,17 @@
         WHERE report_id = #{reportId}
     </update>
 
+    <!-- 트리거로 report_id 생성 -->
     <insert id="insertReport">
-        INSERT INTO AdminReport (report_id, target_type, target_id, reporter_mno, status)
-        VALUES (#{reportId}, #{targetType}, #{targetId}, #{reporterMno}, #{status})
+        INSERT INTO AdminReport
+        (target_type, target_id, reporter_mno, status, created_at)
+        VALUES
+        (#{targetType}, #{targetId}, #{reporterMno}, #{status}, SYSDATE)
     </insert>
+
+    <delete id="deleteReport">
+        DELETE FROM AdminReport
+        WHERE report_id = #{reportId}
+    </delete>
 
 </mapper>

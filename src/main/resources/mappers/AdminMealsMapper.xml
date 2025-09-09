@@ -17,13 +17,15 @@
         JOIN member m ON m.mno = bm.mno
         <where>
             <if test="q != null and q != ''">
-                (LOWER(bm.bmtitle) LIKE LOWER('%' || #{q} || '%')
-                OR LOWER(m.nickname) LIKE LOWER('%' || #{q} || '%')
-                OR LOWER(m.userid)   LIKE LOWER('%' || #{q} || '%'))
+                (
+                INSTR(LOWER(bm.bmtitle),  LOWER(#{q})) &gt; 0
+                OR INSTR(LOWER(m.nickname), LOWER(#{q})) &gt; 0
+                OR INSTR(LOWER(m.userid),   LOWER(#{q})) &gt; 0
+                )
             </if>
 
             <!-- status: ALL(전체), POSTED(1), HIDDEN(0), 또는 '0'/'1' 문자열 -->
-            <if test="status != null and status != '' and status != 'ALL'">
+            <if test="status != null &amp;&amp; status != '' &amp;&amp; status != 'ALL'">
                 AND bm.bmstatus =
                 <choose>
                     <when test="status == 'POSTED'">1</when>
@@ -43,12 +45,14 @@
         JOIN member m ON m.mno = bm.mno
         <where>
             <if test="q != null and q != ''">
-                (LOWER(bm.bmtitle) LIKE LOWER('%' || #{q} || '%')
-                OR LOWER(m.nickname) LIKE LOWER('%' || #{q} || '%')
-                OR LOWER(m.userid)   LIKE LOWER('%' || #{q} || '%'))
+                (
+                INSTR(LOWER(bm.bmtitle),  LOWER(#{q})) &gt; 0
+                OR INSTR(LOWER(m.nickname), LOWER(#{q})) &gt; 0
+                OR INSTR(LOWER(m.userid),   LOWER(#{q})) &gt; 0
+                )
             </if>
 
-            <if test="status != null and status != '' and status != 'ALL'">
+            <if test="status != null &amp;&amp; status != '' &amp;&amp; status != 'ALL'">
                 AND bm.bmstatus =
                 <choose>
                     <when test="status == 'POSTED'">1</when>
@@ -61,37 +65,32 @@
 
     <!-- 글 번호로 작성자 mno 찾기 -->
     <select id="selectAuthorMnoByBmno" parameterType="long" resultType="long">
-        SELECT mno
-        FROM BoardMeals
-        WHERE bmno = #{bmno}
+        SELECT mno FROM BoardMeals WHERE bmno = #{bmno}
     </select>
 
     <!-- 작성자 기본/카운트 정보 (Map으로 수신) -->
     <select id="selectAuthorInfo" parameterType="long" resultType="map">
         SELECT
-        m.mno                                   AS MNO,
-        m.userid                                AS USERID,
-        NVL(m.nickname, m.userid)               AS NICKNAME,
-        /* 작성 글 수 */
+        m.mno                         AS MNO,
+        m.userid                      AS USERID,
+        NVL(m.nickname, m.userid)     AS NICKNAME,
         (SELECT COUNT(*) FROM BoardMeals bm WHERE bm.mno = m.mno) AS POSTCOUNT,
-        /* 게시글 신고 수 */
         (SELECT COUNT(*)
         FROM AdminReport ar
         WHERE ar.target_type IN ('MEAL_POST','REVIEW_POST')
         AND ar.target_id IN (
-        SELECT bm2.bmno FROM BoardMeals bm2 WHERE bm2.mno = m.mno
+        SELECT bm2.bmno FROM BoardMeals  bm2 WHERE bm2.mno = m.mno
         UNION ALL
         SELECT br2.brno FROM BoardReview br2 WHERE br2.mno = m.mno
         )
         ) AS TOTALPOSTREPORTS,
-        /* 댓글 신고 수 (댓글 테이블/컬럼명 맞게 필요시 수정) */
         (SELECT COUNT(*)
         FROM AdminReport ar
         WHERE ar.target_type IN ('MEAL_COMMENT','REVIEW_COMMENT')
         AND ar.target_id IN (
-        SELECT bmc.bmcno FROM BoardMealsComment bmc WHERE bmc.mno = m.mno
+        SELECT bmc.bmcno FROM BMComment  bmc WHERE bmc.mno = m.mno
         UNION ALL
-        SELECT rc.cno    FROM ReviewComment rc    WHERE rc.mno = m.mno
+        SELECT rc.brcno  FROM BRComment rc  WHERE rc.mno = m.mno
         )
         ) AS TOTALCOMMENTREPORTS
         FROM member m
@@ -103,9 +102,12 @@
             parameterType="long"
             resultType="com.vitalog.spring_diet.dto.admindashboard.AuthorActivityDTO$PostBrief">
         SELECT
-        bm.bmno                              AS id,
+        bm.bmno                              AS bmno,
         bm.bmtitle                           AS title,
-        TO_CHAR(bm.bmwritedate,'YYYY-MM-DD') AS "date"
+        TO_CHAR(bm.bmwritedate,'YYYY-MM-DD') AS writeDate,
+        (SELECT NVL(SUM(a.bmawesome),0) FROM BMAwesome a WHERE a.bmno = bm.bmno) AS likeCount,
+        (SELECT COUNT(*) FROM BMComment c WHERE c.bmno = bm.bmno)                 AS commentCount,
+        (SELECT COUNT(*) FROM AdminReport ar WHERE ar.target_type = 'MEAL_POST' AND ar.target_id = bm.bmno) AS reportCount
         FROM BoardMeals bm
         WHERE bm.mno = #{mno}
         ORDER BY bm.bmno DESC
@@ -116,10 +118,14 @@
             parameterType="long"
             resultType="com.vitalog.spring_diet.dto.admindashboard.AuthorActivityDTO$SelfCommentBrief">
         SELECT
-        bmc.bmcno                            AS id,
-        bmc.content                          AS content,
-        TO_CHAR(bmc.write_date,'YYYY-MM-DD') AS "date"
-        FROM BoardMealsComment bmc
+        bmc.bmcno                               AS bmcommentno,
+        bmc.bmno                                AS bmno,
+        bm.bmtitle                              AS postTitle,
+        bmc.bmccontent                          AS content,
+        TO_CHAR(bmc.bmcwrite_date,'YYYY-MM-DD') AS writeDate,
+        (SELECT NVL(SUM(a.bmcawesome),0) FROM BMCommentAwesome a WHERE a.bmcno = bmc.bmcno) AS likeCount,
+        (SELECT COUNT(*) FROM AdminReport ar WHERE ar.target_type = 'MEAL_COMMENT' AND ar.target_id = bmc.bmcno) AS reportCount
+        FROM BMComment bmc
         JOIN BoardMeals bm ON bm.bmno = bmc.bmno
         WHERE bm.mno = #{mno}
         AND bmc.mno = #{mno}
@@ -128,9 +134,6 @@
 
     <!-- 상태 토글 -->
     <update id="updateMealStatus">
-        UPDATE BoardMeals
-        SET bmstatus = #{status}
-        WHERE bmno = #{bmno}
+        UPDATE BoardMeals SET bmstatus = #{status} WHERE bmno = #{bmno}
     </update>
-
 </mapper>

@@ -15,12 +15,10 @@ public class AdminMealsService {
 
     private final AdminMealsMapper mapper;
 
-    // 기존 호출 호환
     public AdminMealsPageDTO getPage(int p, int size, String q) {
         return getPage(p, size, q, "ALL");
     }
 
-    // 상태 필터 버전
     public AdminMealsPageDTO getPage(int p, int size, String q, String status) {
         int page = Math.max(p, 1);
         int offset = (page - 1) * size;
