@@ -12,11 +12,11 @@ public class BoardReviewDTO {
     private int brno;
     private int mno;
     private String brtitle;
-    private String brcontent;  //update 25.08.29
+    private String brcontent;
     private Date brwrite_date;
     private Date brwrite_update;
     private int brdanger;
     private int brviewcount;
-    private String nickname;//update 25.09.03
+    private String nickname;
     private int awesomeCount;
 }
