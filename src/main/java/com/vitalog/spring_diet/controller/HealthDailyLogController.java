@@ -40,7 +40,7 @@ public class HealthDailyLogController {
             @Valid @RequestBody HealthDailyLogRequest req
     ) {
         int mno = Integer.parseInt(authenticatedUsermno);
-      
+
         // [검증] 몸무게 필수
         if (req.getWeight() == null) {
             return ResponseEntity.ok(Map.of("code", 4, "msg", "몸무게를 입력해 주세요."));
@@ -88,6 +88,9 @@ public class HealthDailyLogController {
         private Double wateramount;
         private String exercise;     // (폼에서 배열 → '\n'로 합쳐서 들어옴)
         private List<String> foods;  // 개행 join
+
+        // 프런트에서 cardColor 로 보냄
+        private String cardColor;
     }
 
     private static HealthDailyLogDTO toDTO(HealthDailyLogRequest r) {
@@ -100,10 +103,22 @@ public class HealthDailyLogController {
         // 0903 hweight 매핑(프론트 weight → DTO hweight & weight 동시 세팅) - 끝
         d.setWateramount(r.getWateramount());
         d.setExercise(r.getExercise());
-        if (r.getFoods() != null)
-            d.setFood(String.join("\n", r.getFoods().stream()
+
+        /* 0908 식단 비움 시 '-'로 업데이트 - 시작 */
+        if (r.getFoods() != null) {
+            var cleaned = r.getFoods().stream()
                     .filter(s -> s != null && !s.trim().isEmpty())
-                    .map(String::trim).toList()));
+                    .map(String::trim)
+                    .toList();
+            var joined = String.join("\n", cleaned);
+            // Oracle은 ''를 NULL로 보기 때문에, 비었으면 명시적으로 '-'를 저장해 주어야 업데이트가 반영됨
+            d.setFood(joined.isBlank() ? "-" : joined);
+        }
+        /* 0908 식단 비움 시 '-'로 업데이트 - 끝 */
+
+        /* 0908 DB 색상 저장 전환 - 시작 */
+        d.setBgcolor(r.getCardColor()); // CARD_COLOR ← cardColor(JSON)
+        /* 0908 DB 색상 저장 전환 - 끝 */
         return d;
     }
 }

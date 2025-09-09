@@ -16,4 +16,5 @@ public class BRCommentDTO {
     private Date brcwrite_update;
     private int brcdanger;
     private String nickname;
+    private int awesomeCount;// 좋아요개수
 }
