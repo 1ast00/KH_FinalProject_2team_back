@@ -29,6 +29,7 @@ public class JwtAuthenticationFilter implements Filter {
             "/api/food/search",
             "/api/exercise/data",
             "/api/exercise/recommendations",
+           // "/api/weekly",
             "/api/reviews/list",
             "/api/meals/list",
             "/api/ai/chat"
