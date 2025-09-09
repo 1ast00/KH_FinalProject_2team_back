@@ -182,6 +182,7 @@ public class BoardReviewController {
     public Map<String, Object> toggleCommentAwesome(@PathVariable int brcno,
                                                     @RequestAttribute("authenticatedUsermno") String authenticatedUserMno) {
         //System.out.println("백엔드에 전달된 brcno 값: " + brcno);// 25.09.08 확인후주석
+
        Map<String, Object> map = new HashMap<>();
         long mno = Long.parseLong(authenticatedUserMno);
 
