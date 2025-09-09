@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vitalog.spring_diet.mapper.BoardWeeklyMapper">
+
+    <select id="selectWeeklyChampions" resultType="com.vitalog.spring_diet.dto.BoardWeeklyParticipantDTO">
+        SELECT
+        m.MNO as mno,
+        m.NICKNAME as nickname,
+        m.WEIGHT as weight,
+        m.HEIGHT as height,
+        m.GOAL_WEIGHT as goalWeight,
+        bw.BWAGE_GROUP as ageGroup, -- BWAGE_GROUP 컬럼을 직접 선택
+        bw.BWCREATED_AT as participationTime
+        FROM MEMBER m
+        JOIN BOARDWEEKLY bw ON m.MNO = bw.MNO
+        WHERE bw.BWCREATED_AT >= TRUNC(SYSDATE, 'IW')
+    </select>
+
+    <select id="checkParticipation" parameterType="int" resultType="int">
+        SELECT COUNT(*)
+        FROM BOARDWEEKLY
+        WHERE MNO = #{mno} AND BWCREATED_AT >= TRUNC(SYSDATE, 'IW')
+    </select>
+
+    <insert id="insertParticipation" parameterType="boardWeekly">
+        INSERT INTO BOARDWEEKLY (BWNO, MNO, BWAGE_GROUP, BWCREATED_AT)
+        VALUES (
+        BOARDWEEKLY_SEQ.NEXTVAL,
+        #{mno},
+        #{bwage_group},
+        SYSDATE
+        )
+    </insert>
+
+    <delete id="deleteParticipation" parameterType="int">
+        DELETE FROM BOARDWEEKLY
+        WHERE MNO = #{mno} AND BWCREATED_AT >= TRUNC(SYSDATE, 'IW')
+    </delete>
+
+</mapper>
