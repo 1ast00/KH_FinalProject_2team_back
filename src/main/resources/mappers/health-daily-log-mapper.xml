@@ -63,15 +63,17 @@
         UPDATE Health_Daily_Log
         SET
         HDATE = CASE
-        WHEN #{hdate} IS NOT NULL AND #{hdate} != ''
+        WHEN #{hdate} IS NOT NULL
         THEN TO_DATE(#{hdate}, 'YYYY-MM-DD')
         ELSE HDATE
         END,
+
+
         SLEEPTIME = CASE
         WHEN #{sleeptime} IS NOT NULL THEN
         TO_DATE(
         (CASE
-        WHEN #{hdate} IS NOT NULL AND #{hdate} != ''
+        WHEN #{hdate} IS NOT NULL
         THEN #{hdate}
         ELSE TO_CHAR(SLEEPTIME,'YYYY-MM-DD')
         END) || ' ' || #{sleeptime},
@@ -79,6 +81,7 @@
         )
         ELSE SLEEPTIME
         END,
+
         HWEIGHT     = NVL(#{hweight}, HWEIGHT),
         WATERAMOUNT = NVL(#{wateramount}, WATERAMOUNT),
         EXERCISE    = NVL(#{exercise}, EXERCISE),
