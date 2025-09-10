@@ -9,7 +9,8 @@ import java.sql.Date;
 @Alias("boardWeekly")
 public class BoardWeeklyDTO {
     private int bwno;
-    private int age_goup;
+    private int mno;
+    private int bwage_group;
     private Date bwcreated_at;
     private int bwdanger;
 }

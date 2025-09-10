@@ -29,7 +29,11 @@ public class JwtAuthenticationFilter implements Filter {
             "/api/food/search",
             "/api/exercise/data",
             "/api/exercise/recommendations",
-            "/api/reviews/list"
+           // "/api/weekly",
+            "/api/reviews/list",
+            "/api/meals/list",
+            "/api/ai/chat",
+            "/api/admin/members/count"
     );
 
     //토큰 추출 메소드

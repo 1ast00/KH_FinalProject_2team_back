@@ -1,12 +1,8 @@
-// src/main/java/com/vitalog/spring_diet/controller/GeminiController.java
-
 package com.vitalog.spring_diet.controller;
 
 import com.vitalog.spring_diet.dto.GeminiDTO;
 import com.vitalog.spring_diet.service.GeminiService;
-// 0907 sss_log 추가 - 시작
 import com.vitalog.spring_diet.service.HealthDailyLogGeminiService;
-// 0907 sss_log 추가 - 끝
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +23,15 @@ public class GeminiController {
     public ResponseEntity<Map<String, String>> getAiResponse(@RequestBody GeminiDTO geminiDTO) {
         String prompt = geminiDTO.getPrompt();
         String response = geminiService.getResponseFromGemini(prompt);
+        return ResponseEntity.ok(Map.of("response", response));
+    }
+
+    // [추가] ExerciseDetailPage 전용 AI 채팅 경로
+    @PostMapping("/ExerciseChat")
+    public ResponseEntity<Map<String, String>> getExerciseAiResponse(@RequestBody GeminiDTO geminiDTO) {
+        String prompt = geminiDTO.getPrompt();
+        // [수정] exerciseApiKey를 사용하는 새 메소드 호출
+        String response = geminiService.getResponseFromGeminiForExercise(prompt);
         return ResponseEntity.ok(Map.of("response", response));
     }
 

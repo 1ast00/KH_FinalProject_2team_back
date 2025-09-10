@@ -153,4 +153,9 @@
         DELETE FROM member WHERE mno = #{mno}
     </delete>
 
+    <!-- 총 회원 -->
+    <select id="selectMemberCount">
+        SELECT COUNT(*) FROM member
+    </select>
+
 </mapper>

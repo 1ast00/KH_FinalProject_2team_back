@@ -3,16 +3,18 @@
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.AdminReviewsMapper">
 
-    <!-- 목록 -->
-    <select id="selectReviewsPage"
+    <!-- 목록 (11g 호환: ROW_NUMBER) -->
+    <select id="selectReviewsPage" parameterType="map"
             resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReviewsListItemDTO">
+        SELECT * FROM (
         SELECT
-        br.brno                                AS brno,
-        br.mno                                 AS mno,
-        br.brtitle                             AS title,
-        NVL(m.nickname, m.userid)              AS writer,
-        TO_CHAR(br.brwrite_date,'YYYY-MM-DD')  AS writeDate,
-        CASE WHEN br.brstatus = 1 THEN '게시' ELSE '숨김' END AS visible
+        br.brno                               AS brno,
+        br.mno                                AS mno,
+        br.brtitle                            AS title,
+        NVL(m.nickname, m.userid)             AS writer,
+        TO_CHAR(br.brwrite_date,'YYYY-MM-DD') AS writeDate,
+        CASE WHEN br.brstatus = 1 THEN '게시' ELSE '숨김' END AS visible,
+        ROW_NUMBER() OVER (ORDER BY br.brno DESC) AS rn
         FROM BoardReview br
         JOIN member m ON m.mno = br.mno
         <where>
@@ -25,12 +27,11 @@
                 AND br.brstatus = #{status}
             </if>
         </where>
-        ORDER BY br.brno DESC
-        OFFSET #{offset, jdbcType=INTEGER} ROWS FETCH NEXT #{size, jdbcType=INTEGER} ROWS ONLY
+        ) t
+        WHERE t.rn BETWEEN (#{offset} + 1) AND (#{offset} + #{size})
     </select>
 
-    <!-- 목록 카운트 -->
-    <select id="countReviewsPage" resultType="int">
+    <select id="countReviewsPage" parameterType="map" resultType="int">
         SELECT COUNT(*)
         FROM BoardReview br
         JOIN member m ON m.mno = br.mno
@@ -46,9 +47,7 @@
         </where>
     </select>
 
-    <!-- ⭐ 상세 본문 -->
-    <select id="selectReviewDetail"
-            parameterType="long"
+    <select id="selectReviewDetail" parameterType="long"
             resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReviewDetailDTO">
         SELECT
         br.brno                         AS brno,
@@ -63,20 +62,33 @@
         WHERE br.brno = #{brno}
     </select>
 
-    <!-- ⭐ 상세 최근 댓글 N개 -->
-    <select id="selectRecentReviewComments"
-            parameterType="map"
-            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReviewDetailDTO$CommentItem">
+    <!-- 댓글 아이템 매핑: wdate -> date -->
+    <resultMap id="ReviewCommentMap"
+               type="com.vitalog.spring_diet.dto.admindashboard.AdminReviewDetailDTO$CommentItem">
+        <result column="id"     property="id"/>
+        <result column="content" property="content"/>
+        <result column="writer"  property="writer"/>
+        <result column="wdate"   property="date"/>
+    </resultMap>
+
+    <!-- 최근 댓글 N개 (11g 호환) -->
+    <select id="selectRecentReviewComments" parameterType="map" resultMap="ReviewCommentMap">
+        SELECT id, content, writer, wdate
+        FROM (
         SELECT
-        c.cno                               AS id,
-        c.brccontent                        AS content,
-        NVL(m.nickname, m.userid)           AS writer,
-        TO_CHAR(c.brcwrite_date,'YYYY-MM-DD') AS date
+        c.brcno                               AS id,
+        c.brccontent                          AS content,
+        NVL(m.nickname, m.userid)             AS writer,
+        TO_CHAR(c.brcwrite_date,'YYYY-MM-DD') AS wdate,
+        ROW_NUMBER() OVER (ORDER BY c.brcno DESC) AS rn
         FROM BRComment c
         JOIN member m ON m.mno = c.mno
         WHERE c.brno = #{brno}
-        ORDER BY c.cno DESC
-        FETCH FIRST #{limit, jdbcType=INTEGER} ROWS ONLY
+        ) t
+        WHERE t.rn &lt;= #{limit}
     </select>
 
+    <update id="updateReviewStatus">
+        UPDATE BoardReview SET brstatus = #{status} WHERE brno = #{brno}
+    </update>
 </mapper>

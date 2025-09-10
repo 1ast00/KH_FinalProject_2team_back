@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.vitalog.spring_diet.mapper.BoardMealsMapper">
+
+    <resultMap id="BoardMealsMap" type="boardMeals">
+        <id property="bmno" column="BMNO"/>
+        <result column="MNO" property="mno" />
+        <result column="BMTITLE" property="bmtitle" />
+        <result column="BMCONTENT" property="bmcontent" />
+        <result column="BMWRITEDATE" property="bmwrite_date" />
+        <result column="BMWRITE_UPDATE" property="bmwrite_update" />
+        <result column="BMVIEWCOUNT" property="bmviewcount" />
+        <result column="BMDANGER" property="bmdanger" />
+        <result column="NICKNAME" property="nickname" />
+        <result column="AWESOME_COUNT" property="awesomeCount" />
+    </resultMap>
+
+    <select id="selectMealsList" resultMap="BoardMealsMap">
+        SELECT
+        bm.bmno, bm.bmtitle, m.nickname, bm.bmwritedate, bm.bmviewcount, bm.bmcontent, bm.bmwrite_update, bm.bmdanger
+        FROM boardmeals bm
+        JOIN member m ON bm.mno = m.mno
+        ORDER BY bm.bmno DESC
+    </select>
+
+    <select id="selectMealTotalCount" resultType="int">
+        SELECT COUNT(*) FROM boardmeals
+    </select>
+
+    <select id="selectMyMealTotalCount" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM boardmeals WHERE mno = #{mno}
+    </select>
+
+    <select id="selectMeal" resultMap="BoardMealsMap">
+        SELECT
+        bm.*,
+        m.nickname, (SELECT COUNT(*) FROM BMAwesome WHERE bmno = bm.bmno) AS awesomeCount
+        FROM boardmeals bm
+        JOIN member m ON bm.mno = m.mno
+        WHERE bm.bmno = #{bmno}
+    </select>
+
+    <insert id="insertMeal" parameterType="boardMeals">
+        <selectKey keyProperty="bmno" resultType="int" order="BEFORE">
+            SELECT BOARDMEALS_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO boardmeals (bmno, bmtitle, bmcontent, mno, bmwritedate, bmdanger, bmviewcount, bmstatus)
+        VALUES (#{bmno}, #{bmtitle}, #{bmcontent, jdbcType=CLOB}, #{mno}, SYSDATE, 0, 0, 0)
+    </insert>
+
+    <update id="updateViewCount" parameterType="int">
+        UPDATE boardmeals
+        SET bmviewcount = bmviewcount + 1
+        WHERE bmno = #{bmno}
+    </update>
+
+    <update id="updateMeal" parameterType="boardMeals">
+        UPDATE boardmeals
+        SET bmtitle = #{bmtitle},
+        bmcontent = #{bmcontent},
+        bmwrite_update = SYSDATE
+        WHERE bmno = #{bmno}
+    </update>
+
+    <delete id="deleteMeal" parameterType="int">
+        DELETE FROM boardmeals WHERE bmno = #{bmno}
+    </delete>
+
+    <update id="updateDanger" parameterType="int">
+        UPDATE boardmeals SET bmdanger = bmdanger + 1 WHERE bmno = #{bmno}
+    </update>
+
+    <update id="updateStatusToDanger" parameterType="int">
+        UPDATE boardmeals SET bmstatus = 1 WHERE bmno = #{bmno}
+    </update>
+
+    <select id="selectCommentList" resultType="BMComment">
+        SELECT b.*, m.nickname,
+        (SELECT COUNT(*) FROM BMCommentawesome WHERE bmcno = b.bmcno) AS awesomeCount
+        FROM bmcomment b
+        JOIN member m ON b.mno = m.mno
+        WHERE b.bmno = #{bmno}
+        ORDER BY b.bmcno DESC
+    </select>
+
+    <insert id="insertComment" parameterType="BMComment">
+        INSERT INTO bmcomment (bmcno, bmno, mno, bmccontent, bmcwrite_date)
+        VALUES (BM_COMMENT_SEQ.NEXTVAL, #{bmno}, #{mno}, #{bmccontent}, SYSDATE)
+    </insert>
+
+    <update id="updateComment" parameterType="BMComment">
+        UPDATE bmcomment
+        SET bmccontent = #{bmccontent},
+        bmcwrite_update = SYSDATE
+        WHERE bmcno = #{bmcno}
+    </update>
+    <delete id="deleteComment" parameterType="int">
+        DELETE FROM bmcomment WHERE bmcno = #{bmcno}
+    </delete>
+    <select id="selectComment" parameterType="int" resultType="BMComment">
+        SELECT
+        c.*,
+        m.nickname
+        FROM bmcomment c
+        JOIN member m ON c.mno = m.mno
+        WHERE c.bmcno = #{bmcno}
+    </select>
+
+    <insert id="insertBMFile" parameterType="bMFile">
+        INSERT INTO bmfile (bmfno, bmno, bmfname, bmfpath)
+        VALUES (BM_FILE_SEQ.NEXTVAL, #{bmno}, #{bmfname}, #{bmfpath})
+    </insert>
+    <select id="selectFileList" parameterType="int" resultType="bMFile">
+        SELECT * FROM bmfile WHERE bmno = #{bmno}
+    </select>
+    <delete id="deleteFile" parameterType="int">
+        DELETE FROM bmfile WHERE bmfno = #{bmfno}
+    </delete>
+
+    <insert id="insertMealAwesome" parameterType="map">
+        INSERT INTO BMAwesome (bmno, mno) VALUES (#{bmno}, #{mno})
+    </insert>
+    <delete id="deleteMealAwesome" parameterType="map">
+        DELETE FROM BMAwesome WHERE bmno = #{bmno} AND mno = #{mno}
+    </delete>
+    <select id="selectMealAwesomeCount" resultType="int">
+        SELECT COUNT(*) FROM BMAwesome WHERE bmno = #{bmno}
+    </select>
+    <select id="selectAwesomeMemberIds" resultType="int">
+        SELECT mno FROM BMAwesome WHERE bmno = #{bmno}
+    </select>
+    <select id="checkMealAwesome" resultType="int">
+        SELECT COUNT(*) FROM BMAwesome WHERE bmno = #{bmno} AND mno = #{mno}
+    </select>
+
+    <update id="updateCommentDanger" parameterType="int">
+        UPDATE bmcomment SET bmcdanger = bmcdanger + 1 WHERE bmcno = #{bmcno}
+    </update>
+
+    <insert id="insertCommentAwesome" parameterType="map">
+        INSERT INTO BMCommentawesome (bmcno, mno) VALUES (#{bmcno}, #{mno})
+    </insert>
+    <delete id="deleteCommentAwesome" parameterType="map">
+        DELETE FROM BMCommentawesome WHERE bmcno = #{bmcno} AND mno = #{mno}
+    </delete>
+    <select id="selectCommentAwesomeCount" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM BMCommentawesome WHERE bmcno = #{bmcno}
+    </select>
+    <select id="checkCommentAwesome" parameterType="map" resultType="int">
+        SELECT COUNT(*) FROM BMCommentawesome WHERE bmcno = #{bmcno} AND mno = #{mno}
+    </select>
+</mapper>
