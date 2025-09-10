@@ -38,6 +38,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         // 인증 공개 엔드포인트
                         .requestMatchers("/api/auth/**").permitAll()
+                        // 총 회원 수
+                        .requestMatchers("/api/admin/members/count").permitAll()
                         // 관리자 보호: 필터가 심어둔 request attribute로 판단
                         .requestMatchers("/api/admin/**").access(adminByRequestAttr())
                         // 그 외는 필요 시 열어둠(대시보드/프론트 개발 편의)

@@ -46,6 +46,11 @@ public class AdminMemberController {
         return ok ? ResponseEntity.noContent().build() : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/count")
+    public int count() {
+        return service.selectMemberCount();
+    }
+
     @Getter @NoArgsConstructor @AllArgsConstructor
     static class RoleBody { private String role; }
 }

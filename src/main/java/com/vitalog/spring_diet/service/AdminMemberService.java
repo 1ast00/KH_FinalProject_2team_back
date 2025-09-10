@@ -74,4 +74,8 @@ public class AdminMemberService {
     public boolean deleteMember(Long mno) {
         return mapper.deleteMember(mno) > 0;
     }
+
+    public int selectMemberCount() {
+        return mapper.selectMemberCount();
+    }
 }
