@@ -17,15 +17,18 @@ public class AdminReportService {
     private final AdminReportMapper mapper;
 
     public Map<String, Object> getPage(String status, String type, String q, int p, int size) {
-        int offset = (Math.max(p, 1) - 1) * size;
-        List<Map<String, Object>> items = mapper.selectReportsPage(status, type, q, offset, size);
+        int page = Math.max(p, 1);
+        int pageSize = Math.max(1, size);
+        int offset = (page - 1) * pageSize;
+
+        List<Map<String, Object>> items = mapper.selectReportsPage(status, type, q, offset, pageSize);
         int total = mapper.countReportsPage(status, type, q);
 
         Map<String, Object> paging = new HashMap<>();
-        paging.put("currentPage", p);
-        paging.put("pageSize", size);
+        paging.put("currentPage", page);
+        paging.put("pageSize", pageSize);
         paging.put("totalCount", total);
-        paging.put("totalPage", (int)Math.ceil((double)total / size));
+        paging.put("totalPage", (int) Math.ceil((double) total / pageSize));
 
         Map<String, Object> res = new HashMap<>();
         res.put("items", items);
@@ -37,6 +40,7 @@ public class AdminReportService {
         return mapper.updateReportStatus(reportId, status) > 0;
     }
 
+<<<<<<< HEAD
     //  생성
     public long createReport(String targetType, long targetId, long reporterMno) {
         mapper.insertReport(targetType, targetId, reporterMno, "PENDING");
@@ -51,6 +55,28 @@ public class AdminReportService {
     }
 
     //  삭제
+=======
+    public long createReport(String targetType, long targetId, long reporterMno) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("targetType", targetType);
+        param.put("targetId", targetId);
+        param.put("reporterMno", reporterMno);
+        param.put("status", "PENDING");
+        mapper.insertReport(param); // <selectKey order="AFTER">가 reportId를 세팅
+        return ((Number) param.get("reportId")).longValue();
+    }
+
+    public AdminReportDetailDTO getDetail(long reportId) {
+        AdminReportDetailDTO dto = mapper.selectReportDetail(reportId);
+        if (dto == null) return null;
+
+        // 한글 상태 라벨 (PENDING → 대기, RESOLVED/DONE → 처리완료)
+        String s = dto.getStatus();
+        dto.setStatusKo(("RESOLVED".equalsIgnoreCase(s) || "DONE".equalsIgnoreCase(s)) ? "처리완료" : "대기");
+        return dto;
+    }
+
+>>>>>>> main
     public boolean delete(long reportId) {
         return mapper.deleteReport(reportId) > 0;
     }

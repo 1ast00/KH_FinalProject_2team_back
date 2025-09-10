@@ -1,8 +1,9 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.vitalog.spring_diet.mapper.AdminReportMapper">
 
+<<<<<<< HEAD
     <!-- 목록 (11g: ROW_NUMBER 페이징) -->
     <select id="selectReportsPage"
             parameterType="map"
@@ -17,6 +18,16 @@
         ar.status                            AS status,
         /* 스냅샷은 일단 NULL, 프론트에서 '-' 처리 */
         NULL                                 AS titleSnapshot,
+=======
+    <select id="selectReportsPage" parameterType="map" resultType="map">
+        SELECT * FROM (
+        SELECT
+        ar.report_id    AS "reportId",
+        ar.target_type  AS "targetType",
+        ar.target_id    AS "targetId",
+        ar.reporter_mno AS "reporterMno",
+        ar.status       AS "status",
+>>>>>>> main
         ROW_NUMBER() OVER (ORDER BY ar.report_id DESC) AS rn
         FROM AdminReport ar
         <where>
@@ -54,6 +65,7 @@
         </where>
     </select>
 
+<<<<<<< HEAD
     <!-- 상세 (인터페이스 메서드명과 일치) -->
     <select id="selectReportDetail"
             parameterType="long"
@@ -66,6 +78,68 @@
         ar.status         AS status,
         ar.reason         AS reason,
         TO_CHAR(ar.created_at, 'YYYY-MM-DD HH24:MI:SS') AS createdAt
+=======
+    <!-- 상세: 신고자/피신고자(작성자) + 제목/댓글내용 + 아이디/닉네임 분리 -->
+    <select id="selectReportDetail" parameterType="long"
+            resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReportDetailDTO">
+        SELECT
+        ar.report_id    AS "reportId",
+        ar.target_type  AS "targetType",
+        ar.target_id    AS "targetId",
+        ar.reporter_mno AS "reporterMno",
+        ar.status       AS "status",
+
+        /* 신고자 */
+        (SELECT NVL(m.nickname, m.userid) FROM member m WHERE m.mno = ar.reporter_mno) AS "reporterUser",
+        (SELECT m.userid                       FROM member m WHERE m.mno = ar.reporter_mno) AS "reporterUserId",
+        (SELECT m.nickname                     FROM member m WHERE m.mno = ar.reporter_mno) AS "reporterNick",
+
+        /* 대상 작성자 MNO (타입별 원테이블 역참조) */
+        CASE ar.target_type
+        WHEN 'MEAL_POST'      THEN (SELECT bm.mno  FROM BoardMeals  bm WHERE bm.bmno  = ar.target_id)
+        WHEN 'MEAL_COMMENT'   THEN (SELECT mc.mno  FROM BMComment   mc WHERE mc.bmcno = ar.target_id)
+        WHEN 'REVIEW_POST'    THEN (SELECT br.mno  FROM BoardReview br WHERE br.brno  = ar.target_id)
+        WHEN 'REVIEW_COMMENT' THEN (SELECT rc.mno  FROM BRComment   rc WHERE rc.brcno = ar.target_id)
+        END AS "targetOwnerMno",
+
+        /* 대상 작성자 아이디/닉네임/표기용 */
+        (SELECT m2.userid FROM member m2 WHERE m2.mno =
+        (CASE ar.target_type
+        WHEN 'MEAL_POST'      THEN (SELECT bm.mno  FROM BoardMeals  bm WHERE bm.bmno  = ar.target_id)
+        WHEN 'MEAL_COMMENT'   THEN (SELECT mc.mno  FROM BMComment   mc WHERE mc.bmcno = ar.target_id)
+        WHEN 'REVIEW_POST'    THEN (SELECT br.mno  FROM BoardReview br WHERE br.brno  = ar.target_id)
+        WHEN 'REVIEW_COMMENT' THEN (SELECT rc.mno  FROM BRComment   rc WHERE rc.brcno = ar.target_id)
+        END)
+        ) AS "targetOwnerUserId",
+
+        (SELECT m2.nickname FROM member m2 WHERE m2.mno =
+        (CASE ar.target_type
+        WHEN 'MEAL_POST'      THEN (SELECT bm.mno  FROM BoardMeals  bm WHERE bm.bmno  = ar.target_id)
+        WHEN 'MEAL_COMMENT'   THEN (SELECT mc.mno  FROM BMComment   mc WHERE mc.bmcno = ar.target_id)
+        WHEN 'REVIEW_POST'    THEN (SELECT br.mno  FROM BoardReview br WHERE br.brno  = ar.target_id)
+        WHEN 'REVIEW_COMMENT' THEN (SELECT rc.mno  FROM BRComment   rc WHERE rc.brcno = ar.target_id)
+        END)
+        ) AS "targetOwnerNick",
+
+        (SELECT NVL(m2.nickname, m2.userid) FROM member m2 WHERE m2.mno =
+        (CASE ar.target_type
+        WHEN 'MEAL_POST'      THEN (SELECT bm.mno  FROM BoardMeals  bm WHERE bm.bmno  = ar.target_id)
+        WHEN 'MEAL_COMMENT'   THEN (SELECT mc.mno  FROM BMComment   mc WHERE mc.bmcno = ar.target_id)
+        WHEN 'REVIEW_POST'    THEN (SELECT br.mno  FROM BoardReview br WHERE br.brno  = ar.target_id)
+        WHEN 'REVIEW_COMMENT' THEN (SELECT rc.mno  FROM BRComment   rc WHERE rc.brcno = ar.target_id)
+        END)
+        ) AS "targetOwnerUser",
+
+        /* 부가 정보: 제목/댓글 */
+        CASE ar.target_type
+        WHEN 'MEAL_POST'   THEN (SELECT bm.bmtitle     FROM BoardMeals  bm WHERE bm.bmno  = ar.target_id)
+        WHEN 'REVIEW_POST' THEN (SELECT br.brtitle     FROM BoardReview br WHERE br.brno  = ar.target_id)
+        END AS "postTitle",
+        CASE ar.target_type
+        WHEN 'MEAL_COMMENT'   THEN (SELECT mc.bmccontent FROM BMComment mc WHERE mc.bmcno = ar.target_id)
+        WHEN 'REVIEW_COMMENT' THEN (SELECT rc.brccontent FROM BRComment rc WHERE rc.brcno = ar.target_id)
+        END AS "commentExcerpt"
+>>>>>>> main
         FROM AdminReport ar
         WHERE ar.report_id = #{reportId}
     </select>
@@ -76,12 +150,21 @@
         WHERE report_id = #{reportId}
     </update>
 
+<<<<<<< HEAD
     <!-- 트리거로 report_id 생성 -->
     <insert id="insertReport">
         INSERT INTO AdminReport
         (target_type, target_id, reporter_mno, status, created_at)
         VALUES
         (#{targetType}, #{targetId}, #{reporterMno}, #{status}, SYSDATE)
+=======
+    <insert id="insertReport" parameterType="map">
+        INSERT INTO AdminReport (target_type, target_id, reporter_mno, status)
+        VALUES (#{targetType}, #{targetId}, #{reporterMno}, #{status})
+        <selectKey keyProperty="reportId" resultType="long" order="AFTER">
+            SELECT seq_admin_report.CURRVAL FROM dual
+        </selectKey>
+>>>>>>> main
     </insert>
 
     <delete id="deleteReport">
