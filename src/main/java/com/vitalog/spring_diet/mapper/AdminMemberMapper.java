@@ -34,4 +34,7 @@ public interface AdminMemberMapper {
 
     // 삭제
     int deleteMember(@Param("mno") Long mno);
+
+    // 총 회원
+    int selectMemberCount();
 }
