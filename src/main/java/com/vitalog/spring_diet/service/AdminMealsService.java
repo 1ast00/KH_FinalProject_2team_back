@@ -1,6 +1,6 @@
+// src/main/java/com/vitalog/spring_diet/service/AdminMealsService.java
 package com.vitalog.spring_diet.service;
 
-import com.vitalog.spring_diet.dto.admindashboard.AdminMealsListItemDTO;
 import com.vitalog.spring_diet.dto.admindashboard.AdminMealsPageDTO;
 import com.vitalog.spring_diet.dto.admindashboard.AuthorActivityDTO;
 import com.vitalog.spring_diet.mapper.AdminMealsMapper;
@@ -23,7 +23,7 @@ public class AdminMealsService {
         int page = Math.max(p, 1);
         int offset = (page - 1) * size;
         int total = mapper.countMealsPage(q, status);
-        int totalPage = Math.max((int)Math.ceil(total / (double)size), 1);
+        int totalPage = Math.max((int) Math.ceil(total / (double) size), 1);
 
         return AdminMealsPageDTO.builder()
                 .items(mapper.selectMealsPage(q, offset, size, status))
@@ -53,6 +53,7 @@ public class AdminMealsService {
                 .build();
     }
 
+    //  posted=true  1(게시), false → 0(숨김)
     public int toggleMealStatus(long bmno, boolean posted) {
         return mapper.updateMealStatus(bmno, posted ? 1 : 0);
     }

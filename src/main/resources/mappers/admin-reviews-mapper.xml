@@ -47,6 +47,7 @@
         </where>
     </select>
 
+    <!-- 상세: 신고 카운트 2개 추가 -->
     <select id="selectReviewDetail" parameterType="long"
             resultType="com.vitalog.spring_diet.dto.admindashboard.AdminReviewDetailDTO">
         SELECT
@@ -56,7 +57,16 @@
         NVL(m.nickname, m.userid)       AS writer,
         TO_CHAR(br.brwrite_date,'YYYY-MM-DD') AS writeDate,
         CASE WHEN br.brstatus = 1 THEN '게시' ELSE '숨김' END AS status,
-        br.brdanger                     AS danger
+        br.brdanger                     AS danger,
+        /* 리뷰 글 신고 수 */
+        (SELECT COUNT(*) FROM AdminReport ar
+        WHERE ar.target_type = 'REVIEW_POST'
+        AND ar.target_id   = br.brno) AS reportPostCount,
+        /* 리뷰 댓글 신고 수 (댓글 PK 이름 프로젝트 기준으로 brcno 사용) */
+        (SELECT COUNT(*) FROM AdminReport ar
+        WHERE ar.target_type = 'REVIEW_COMMENT'
+        AND ar.target_id IN (SELECT c.brcno FROM BRComment c WHERE c.brno = br.brno)
+        ) AS reportCommentCount
         FROM BoardReview br
         JOIN member m ON m.mno = br.mno
         WHERE br.brno = #{brno}
@@ -65,7 +75,7 @@
     <!-- 댓글 아이템 매핑: wdate -> date -->
     <resultMap id="ReviewCommentMap"
                type="com.vitalog.spring_diet.dto.admindashboard.AdminReviewDetailDTO$CommentItem">
-        <result column="id"     property="id"/>
+        <result column="id"      property="id"/>
         <result column="content" property="content"/>
         <result column="writer"  property="writer"/>
         <result column="wdate"   property="date"/>
