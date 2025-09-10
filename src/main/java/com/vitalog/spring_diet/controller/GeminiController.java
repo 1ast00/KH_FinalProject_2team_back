@@ -19,7 +19,9 @@ import java.util.Map;
 public class GeminiController {
 
     private final GeminiService geminiService;
-    private final HealthDailyLogGeminiService healthDailyLogGeminiService; // 0907 추가
+    // 0907 sss_log 추가 - 시작
+    private final HealthDailyLogGeminiService healthDailyLogGeminiService;
+    // 0907 sss_log 추가 - 끝
 
     @PostMapping("/chat")
     public ResponseEntity<Map<String, String>> getAiResponse(@RequestBody GeminiDTO geminiDTO) {
