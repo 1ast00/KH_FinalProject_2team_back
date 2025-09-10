@@ -33,22 +33,23 @@ public class AdminReportController {
                 : ResponseEntity.badRequest().build();
     }
 
-    //  상세
+    // 상세
     @GetMapping("/{reportId}")
     public ResponseEntity<?> detail(@PathVariable long reportId) {
         AdminReportDetailDTO dto = service.getDetail(reportId);
-        return dto == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(dto);
+        return (dto == null) ? ResponseEntity.notFound().build() : ResponseEntity.ok(dto);
     }
 
-    //  처리 완료(프론트에서 /resolve 를 호출하므로 매핑만 맞춰줌)
+    // 처리 완료 (프론트의 /resolve 호출과 매핑)
     @PatchMapping("/{reportId}/resolve")
     public ResponseEntity<?> resolve(@PathVariable long reportId,
                                      @RequestParam(required = false) Long resolverMno) {
-        return service.updateStatus(reportId, "DONE") ? ResponseEntity.ok().build()
+        // 내부 상태 값은 RESOLVED로 저장 (기존 DONE도 표시 로직에서 처리)
+        return service.updateStatus(reportId, "RESOLVED") ? ResponseEntity.ok().build()
                 : ResponseEntity.badRequest().build();
     }
 
-    // 삭제 (프론트에서 사용)
+    // 삭제
     @DeleteMapping("/{reportId}")
     public ResponseEntity<?> delete(@PathVariable long reportId) {
         return service.delete(reportId) ? ResponseEntity.ok().build()
