@@ -5,18 +5,6 @@ import lombok.*;
 
 @Data @Builder @NoArgsConstructor @AllArgsConstructor
 public class AdminReportDetailDTO {
-<<<<<<< HEAD
-    private Long reportId;
-    private String targetType;     // MEAL_POST / MEAL_COMMENT / REVIEW_POST / REVIEW_COMMENT
-    private Long targetId;
-    private Long reporterMno;
-    private String status;
-
-    // 스냅샷(저장 컬럼 없이 실시간 조회)
-    private String targetWriter;   // 작성자 닉/아이디
-    private String postTitle;      // 글인 경우
-    private String commentExcerpt; // 댓글인 경우
-=======
     private Long   reportId;
     private String targetType;        // MEAL_POST / MEAL_COMMENT / REVIEW_POST / REVIEW_COMMENT
     private Long   targetId;          // (원본) 게시글/댓글 PK
@@ -40,5 +28,4 @@ public class AdminReportDetailDTO {
 
 
     private String statusKo;          // 대기 / 처리완료 (서비스에서 세팅)
->>>>>>> main
 }

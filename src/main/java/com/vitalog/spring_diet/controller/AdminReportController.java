@@ -33,24 +33,6 @@ public class AdminReportController {
                 : ResponseEntity.badRequest().build();
     }
 
-<<<<<<< HEAD
-    //  상세
-    @GetMapping("/{reportId}")
-    public ResponseEntity<?> detail(@PathVariable long reportId) {
-        AdminReportDetailDTO dto = service.getDetail(reportId);
-        return dto == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(dto);
-    }
-
-    //  처리 완료(프론트에서 /resolve 를 호출하므로 매핑만 맞춰줌)
-    @PatchMapping("/{reportId}/resolve")
-    public ResponseEntity<?> resolve(@PathVariable long reportId,
-                                     @RequestParam(required = false) Long resolverMno) {
-        return service.updateStatus(reportId, "DONE") ? ResponseEntity.ok().build()
-                : ResponseEntity.badRequest().build();
-    }
-
-    // 삭제 (프론트에서 사용)
-=======
     // 상세
     @GetMapping("/{reportId}")
     public ResponseEntity<?> detail(@PathVariable long reportId) {
@@ -68,7 +50,6 @@ public class AdminReportController {
     }
 
     // 삭제
->>>>>>> main
     @DeleteMapping("/{reportId}")
     public ResponseEntity<?> delete(@PathVariable long reportId) {
         return service.delete(reportId) ? ResponseEntity.ok().build()
